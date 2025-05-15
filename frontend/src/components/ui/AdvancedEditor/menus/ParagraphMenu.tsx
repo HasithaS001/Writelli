@@ -11,7 +11,7 @@ const ParagraphMenu: React.FC<ParagraphMenuProps> = ({ editor }) => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  useOnClickOutside(menuRef, () => setIsOpen(false));
+  useOnClickOutside(menuRef as React.RefObject<HTMLElement>, () => setIsOpen(false));
 
   const getCurrentHeadingLabel = () => {
     if (editor.isActive('heading', { level: 1 })) return 'Heading 1';

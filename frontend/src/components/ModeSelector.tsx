@@ -3,7 +3,7 @@
 import React from 'react';
 import Select from '@/components/ui/Select';
 import { TOOLS, ToolType } from '@/types';
-import { SUBSCRIPTION_FEATURES } from '@/types/subscription';
+
 
 interface ModeSelectorProps {
   toolType: ToolType;

@@ -45,7 +45,15 @@ export function getFallbackReadabilityResponse(): ReadabilityCheckerResponse {
     scores: {
       fleschKincaid: 50,
       gunningFog: 10
-    }
+    },
+    improvementPoints: [
+      "Consider using shorter sentences",
+      "Use simpler vocabulary where possible",
+      "Break long paragraphs into smaller ones",
+      "Replace passive voice with active voice",
+      "Add transitional phrases between sections",
+      "Remove unnecessary technical jargon"
+    ]
   };
 }
 

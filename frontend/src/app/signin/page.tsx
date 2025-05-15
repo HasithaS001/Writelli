@@ -1,18 +1,35 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { useSearchParams } from 'next/navigation';
 
-export default function SignIn() {
+// Loading component for Suspense fallback
+function SignInLoadingUI() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 p-8">
+      <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-sm">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold text-gray-700">Loading...</h2>
+          <div className="mt-6 flex justify-center">
+            <div className="h-8 w-8 border-4 border-t-[#4f39f6] border-r-transparent border-b-[#4f39f6] border-l-transparent rounded-full animate-spin"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Component with useSearchParams
+function SignInContent() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { useSearchParams } = require('next/navigation');
   const searchParams = useSearchParams();
   const { signIn, signInWithGoogle } = useAuth();
   
@@ -188,5 +205,14 @@ export default function SignIn() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Main component with Suspense boundary
+export default function SignIn() {
+  return (
+    <Suspense fallback={<SignInLoadingUI />}>
+      <SignInContent />
+    </Suspense>
   );
 }
