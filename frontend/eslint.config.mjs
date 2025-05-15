@@ -11,7 +11,7 @@ const __dirname = dirname(__filename);
 export default [
   {
     plugins: {
-      '@next': nextPlugin,
+      next: nextPlugin,
       'react': reactPlugin,
       'react-hooks': hooksPlugin,
       '@typescript-eslint': typescriptPlugin,
@@ -22,7 +22,7 @@ export default [
       'react/no-unescaped-entities': 'warn',
       'react-hooks/exhaustive-deps': 'warn',
       '@typescript-eslint/no-explicit-any': 'warn',
-      '@next/next/no-img-element': 'warn',
+      'next/no-img-element': 'warn',
     },
   },
 ];
