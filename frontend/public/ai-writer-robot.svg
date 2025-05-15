@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" fill="none">
+  <!-- Robot Head -->
+  <rect x="300" y="150" width="200" height="180" rx="30" fill="#0072df" />
+  <rect x="310" y="160" width="180" height="160" rx="20" fill="#ffffff" />
+  
+  <!-- Robot Eyes -->
+  <circle cx="360" cy="220" r="25" fill="#0072df" opacity="0.8" />
+  <circle cx="440" cy="220" r="25" fill="#0072df" opacity="0.8" />
+  <circle cx="360" cy="220" r="12" fill="#ffffff" />
+  <circle cx="440" cy="220" r="12" fill="#ffffff" />
+  
+  <!-- Robot Mouth -->
+  <rect x="350" y="270" width="100" height="20" rx="10" fill="#0072df" opacity="0.8" />
+  
+  <!-- Robot Antennas -->
+  <rect x="370" y="120" width="10" height="30" fill="#0072df" />
+  <circle cx="375" cy="110" r="10" fill="#0072df" />
+  <rect x="420" y="120" width="10" height="30" fill="#0072df" />
+  <circle cx="425" cy="110" r="10" fill="#0072df" />
+  
+  <!-- Robot Body -->
+  <rect x="320" y="330" width="160" height="120" rx="20" fill="#0072df" />
+  <rect x="330" y="340" width="140" height="100" rx="10" fill="#ffffff" />
+  
+  <!-- Robot Arms -->
+  <rect x="240" y="350" width="80" height="20" rx="10" fill="#0072df" />
+  <rect x="480" y="350" width="80" height="20" rx="10" fill="#0072df" />
+  <circle cx="240" cy="360" r="15" fill="#0072df" />
+  <circle cx="560" cy="360" r="15" fill="#0072df" />
+  
+  <!-- Document and Pen -->
+  <rect x="220" y="400" width="100" height="140" rx="5" fill="#f0f0f0" stroke="#0072df" stroke-width="2" />
+  <line x1="240" y1="430" x2="300" y2="430" stroke="#0072df" stroke-width="2" />
+  <line x1="240" y1="450" x2="290" y2="450" stroke="#0072df" stroke-width="2" />
+  <line x1="240" y1="470" x2="310" y2="470" stroke="#0072df" stroke-width="2" />
+  <line x1="240" y1="490" x2="280" y2="490" stroke="#0072df" stroke-width="2" />
+  
+  <!-- Pen in Robot Hand -->
+  <line x1="560" y1="360" x2="520" y2="450" stroke="#0072df" stroke-width="4" />
+  <polygon points="520,450 510,460 515,445" fill="#0072df" />
+  
+  <!-- AI Brain Elements -->
+  <circle cx="400" cy="200" r="60" fill="none" stroke="#0072df" stroke-width="2" stroke-dasharray="5 5" opacity="0.5" />
+  <path d="M370 180 L430 180 L430 220 L370 220 Z" stroke="#0072df" stroke-width="1" fill="none" opacity="0.5" />
+  <path d="M380 190 L420 190 M380 200 L420 200 M380 210 L420 210" stroke="#0072df" stroke-width="1" opacity="0.5" />
+  
+  <!-- Floating Text Elements -->
+  <rect x="480" y="200" width="60" height="20" rx="5" fill="#0072df" opacity="0.2" />
+  <rect x="500" y="230" width="80" height="20" rx="5" fill="#0072df" opacity="0.2" />
+  <rect x="460" y="260" width="70" height="20" rx="5" fill="#0072df" opacity="0.2" />
+  
+  <!-- Floating Code Elements -->
+  <rect x="260" y="200" width="60" height="20" rx="5" fill="#0072df" opacity="0.2" />
+  <rect x="230" y="230" width="80" height="20" rx="5" fill="#0072df" opacity="0.2" />
+  <rect x="270" y="260" width="70" height="20" rx="5" fill="#0072df" opacity="0.2" />
+  
+  <!-- Decorative Circles -->
+  <circle cx="200" cy="150" r="10" fill="#0072df" opacity="0.1" />
+  <circle cx="600" cy="150" r="15" fill="#0072df" opacity="0.1" />
+  <circle cx="250" cy="500" r="12" fill="#0072df" opacity="0.1" />
+  <circle cx="550" cy="500" r="8" fill="#0072df" opacity="0.1" />
+  
+  <!-- Gradient Background Element -->
+  <circle cx="400" cy="400" r="200" fill="url(#grad1)" opacity="0.05" />
+  
+  <!-- Definitions -->
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0072df;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00c6ff;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+</svg>

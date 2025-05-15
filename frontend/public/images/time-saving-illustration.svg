@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background shape -->
+  <path d="M500 100 Q650 150 700 300 Q750 450 600 500 Q450 550 300 500 Q150 450 200 300 Q250 150 500 100" fill="#FFF3C4" />
+  
+  <!-- Gears in background -->
+  <circle cx="150" cy="150" r="30" fill="#E2E8F0" opacity="0.5"/>
+  <circle cx="650" cy="200" r="40" fill="#E2E8F0" opacity="0.5"/>
+  <circle cx="700" cy="450" r="35" fill="#E2E8F0" opacity="0.5"/>
+  
+  <!-- Ladder -->
+  <rect x="350" y="200" width="20" height="300" fill="#C4A484"/>
+  <rect x="450" y="200" width="20" height="300" fill="#C4A484"/>
+  <!-- Ladder steps -->
+  <rect x="350" y="250" width="120" height="15" fill="#C4A484"/>
+  <rect x="350" y="300" width="120" height="15" fill="#C4A484"/>
+  <rect x="350" y="350" width="120" height="15" fill="#C4A484"/>
+  <rect x="350" y="400" width="120" height="15" fill="#C4A484"/>
+  
+  <!-- Person -->
+  <!-- Body -->
+  <path d="M400 250 Q410 260 420 270 L430 350 Q420 360 410 350 L400 250" fill="#FFD700"/>
+  <!-- Head -->
+  <circle cx="410" cy="230" r="25" fill="#8B4513"/>
+  <!-- Glasses -->
+  <rect x="395" y="225" width="30" height="10" rx="5" fill="#333333"/>
+  <!-- Arms -->
+  <path d="M420 270 L460 290 L470 280" stroke="#8B4513" stroke-width="8" stroke-linecap="round"/>
+  <!-- Legs -->
+  <path d="M410 350 L400 400" stroke="#333333" stroke-width="12"/>
+  <path d="M430 350 L440 400" stroke="#333333" stroke-width="12"/>
+  <!-- Shoes -->
+  <rect x="390" y="390" width="25" height="15" rx="5" fill="#333333"/>
+  <rect x="430" y="390" width="25" height="15" rx="5" fill="#333333"/>
+  
+  <!-- Clock in hands -->
+  <circle cx="470" cy="280" r="25" fill="white" stroke="#333333" stroke-width="3"/>
+  <line x1="470" y1="280" x2="470" y2="265" stroke="#333333" stroke-width="3"/>
+  <line x1="470" y1="280" x2="480" y2="290" stroke="#333333" stroke-width="3"/>
+  
+  <!-- Additional clocks -->
+  <circle cx="350" cy="450" r="20" fill="white" stroke="#333333" stroke-width="2"/>
+  <circle cx="400" cy="470" r="20" fill="white" stroke="#333333" stroke-width="2"/>
+  
+  <!-- Checkmark in speech bubble -->
+  <circle cx="460" cy="200" r="20" fill="white"/>
+  <path d="M450 200 L458 208 L470 196" stroke="#FFD700" stroke-width="3" stroke-linecap="round"/>
+</svg>
