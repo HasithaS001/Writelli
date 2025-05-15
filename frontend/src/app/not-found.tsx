@@ -24,7 +24,7 @@ export default function NotFound() {
         if (timeLeft <= 0) return;
 
         const particleCount = 50 * (timeLeft / duration);
-        // @ts-ignore
+        // @ts-expect-error - confetti is loaded from CDN
         confetti({
           particleCount,
           spread: 70,
@@ -154,6 +154,7 @@ export default function NotFound() {
           <p className="text-gray-600 mb-8">
             The page you're looking for seems to have wandered off into cyberspace.
           </p>
+          <p className="mt-2 text-gray-700 font-medium">Don&apos;t worry, we&apos;re here to help you find your way back.</p>
           <Link
             href="/"
             className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-[#4f39f6] hover:bg-[#3d2cc7] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4f39f6] transition-colors duration-200"

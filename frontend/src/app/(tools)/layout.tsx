@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Layout from '@/components/Layout';
-import ToolSelector from '@/components/ToolSelector';
 import { ToolType, TOOLS } from '@/types';
 
 export default function ToolsLayout({
@@ -23,18 +22,20 @@ export default function ToolsLayout({
       : 'grammar-checker';
   };
 
-  const [selectedTool, setSelectedTool] = useState<ToolType>(getToolTypeFromPath());
+  // Since we're not using selectedTool or handleToolSelect in this component,
+  // we can either remove them or prefix with underscore to indicate they're unused
+  const [_selectedTool, _setSelectedTool] = useState<ToolType>(getToolTypeFromPath());
 
-  // Update URL when tool changes
-  const handleToolSelect = (tool: ToolType) => {
-    setSelectedTool(tool);
+  // Update URL when tool changes (but not using this function, consider removing)
+  const _handleToolSelect = (tool: ToolType) => {
+    _setSelectedTool(tool);
     router.push(`/${tool}`);
   };
 
-  // Update selected tool when URL changes
+  // Fix dependency array
   useEffect(() => {
-    setSelectedTool(getToolTypeFromPath());
-  }, [pathname]);
+    _setSelectedTool(getToolTypeFromPath());
+  }, [pathname, getToolTypeFromPath]);
 
   return (
     <Layout>

@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prefixbuild": "node scripts/fix-lint.js",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
