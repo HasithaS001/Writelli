@@ -84,7 +84,17 @@ const nextConfig = {
         ]
       }
     ];
-  }
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: process.env.NODE_ENV === 'production' 
+          ? 'https://your-backend-api-url.com/api/:path*' 
+          : 'http://localhost:5000/api/:path*',
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;
