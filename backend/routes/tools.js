@@ -8,7 +8,7 @@ const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
 // Simple in-memory rate limiting
 const RATE_LIMIT_WINDOW = 60 * 60 * 1000; // 1 hour window
-const MAX_REQUESTS_PER_WINDOW = 50; // Maximum requests per window
+const MAX_REQUESTS_PER_WINDOW = 1000; // Maximum requests per window
 const requestLog = [];
 
 // Check if we're rate limited
@@ -47,43 +47,60 @@ function stripHtml(html) {
 
 // Helper function to generate content with Gemini API
 async function generateContent(prompt) {
-  // Log the request for rate limiting
-  logRequest();
-  
   try {
+    // Log the request for rate limiting
+    logRequest();
+    
     // Add a timeout to prevent long-running requests
     const timeoutPromise = new Promise((_, reject) => {
       setTimeout(() => reject(new Error('Request timed out')), 15000); // 15 second timeout
     });
     
-    // Race between the actual request and the timeout
+    // Make the API request with timeout
     const result = await Promise.race([
       model.generateContent(prompt),
       timeoutPromise
     ]);
     
-    return result.response.text();
+    // Check if result is valid
+    if (!result || !result.response) {
+      throw new Error('Invalid response from Gemini API');
+    }
+    
+    const response = await result.response;
+    const text = response.text();
+    
+    // Check if text is valid
+    if (!text) {
+      throw new Error('Empty response from Gemini API');
+    }
+    
+    return text;
   } catch (error) {
     console.error('Error generating content:', error);
-    // Add more detailed error information
     const errorMessage = error.message || 'Unknown error';
-    console.error('Error details:', { 
-      message: errorMessage,
-      code: error.code,
-      status: error.status,
-      details: error.details
-    });
     
-    // Provide a more informative error message
+    // Map errors to specific codes
+    let errorResponse = {
+      error: errorMessage,
+      code: 'UNKNOWN_ERROR'
+    };
+    
     if (errorMessage.includes('API key')) {
-      throw new Error('Invalid or expired API key. Please check your Gemini API key.');
+      errorResponse = { error: 'Invalid or expired API key', code: 'INVALID_API_KEY' };
     } else if (errorMessage.includes('quota') || errorMessage.includes('rate limit')) {
-      throw new Error('API quota exceeded. Please try again later.');
+      errorResponse = { error: 'API quota exceeded', code: 'QUOTA_EXCEEDED' };
     } else if (errorMessage.includes('timeout') || errorMessage.includes('timed out')) {
-      throw new Error('Request timed out. The service might be experiencing high load.');
-    } else {
-      throw new Error(`Failed to generate content: ${errorMessage}`);
+      errorResponse = { error: 'Request timed out', code: 'TIMEOUT' };
+    } else if (errorMessage.includes('model is overloaded') || errorMessage.includes('Service Unavailable')) {
+      errorResponse = { error: 'Service temporarily unavailable', code: 'SERVICE_UNAVAILABLE' };
     }
+    
+    // Log the error details for debugging
+    console.error('Error response:', errorResponse);
+    
+    // Throw the error to be caught by the route handler
+    throw errorResponse;
   }
 }
 
@@ -214,7 +231,16 @@ CORRECTIONS: [List each correction you made in the format "original text -> corr
       // colorCodedText: colorCodedText // Commented out until we're ready to use it
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    // If it's our custom error response, use it
+    if (error.code) {
+      res.status(500).json(error);
+    } else {
+      // For unexpected errors
+      res.status(500).json({
+        error: error.message || 'An unexpected error occurred',
+        code: 'UNKNOWN_ERROR'
+      });
+    }
   }
 });
 

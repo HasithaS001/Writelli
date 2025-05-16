@@ -20,7 +20,9 @@ export function getFallbackGrammarResponse(text: string): GrammarCheckerResponse
   return {
     originalText: text,
     correctedText: text,
-    corrections: []
+    corrections: [],
+    colorCodedText: text,
+    error: 'Service temporarily unavailable'
   };
 }
 
@@ -45,7 +47,16 @@ export function getFallbackReadabilityResponse(): ReadabilityCheckerResponse {
     scores: {
       fleschKincaid: 50,
       gunningFog: 10
-    }
+    },
+    improvementPoints: [
+      'Use shorter sentences (15-20 words max)',
+      'Choose simpler words when possible',
+      'Break up long paragraphs',
+      'Use active voice instead of passive voice',
+      'Include transitional phrases between paragraphs',
+      'Eliminate unnecessary jargon and technical terms'
+    ],
+    revisedExample: 'Example text is temporarily unavailable.'
   };
 }
 
@@ -54,6 +65,7 @@ export function getFallbackReadabilityResponse(): ReadabilityCheckerResponse {
  */
 export function getFallbackParaphraserResponse(text: string): ParaphraserResponse {
   return {
+    error: 'Service temporarily unavailable',
     paraphrasedText: `
       <div class="p-6 bg-blue-50 rounded-xl border border-blue-100">
         <div class="flex items-center mb-3">
@@ -76,6 +88,7 @@ export function getFallbackParaphraserResponse(text: string): ParaphraserRespons
  */
 export function getFallbackSummarizerResponse(text: string): SummarizerResponse {
   return {
+    error: 'Service temporarily unavailable',
     summary: `
       <div class="p-6 bg-blue-50 rounded-xl border border-blue-100">
         <div class="flex items-center mb-3">
@@ -98,6 +111,7 @@ export function getFallbackSummarizerResponse(text: string): SummarizerResponse 
  */
 export function getFallbackTranslatorResponse(text: string, targetLanguage: string): TranslatorResponse {
   return {
+    error: 'Service temporarily unavailable',
     translatedText: `
       <div class="p-6 bg-blue-50 rounded-xl border border-blue-100">
         <div class="flex items-center mb-3">
@@ -120,6 +134,7 @@ export function getFallbackTranslatorResponse(text: string, targetLanguage: stri
  */
 export function getFallbackToneConverterResponse(text: string, tone: string): ToneConverterResponse {
   return {
+    error: 'Service temporarily unavailable',
     convertedText: `
       <div class="p-6 bg-blue-50 rounded-xl border border-blue-100">
         <div class="flex items-center mb-3">
@@ -142,6 +157,7 @@ export function getFallbackToneConverterResponse(text: string, tone: string): To
  */
 export function getFallbackHumanizerResponse(text: string): HumanizerResponse {
   return {
+    error: 'Service temporarily unavailable',
     humanizedText: `
       <div class="p-6 bg-blue-50 rounded-xl border border-blue-100">
         <div class="flex items-center mb-3">

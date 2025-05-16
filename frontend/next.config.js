@@ -2,6 +2,17 @@ const webpack = require('webpack');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  headers: async () => [
+    {
+      source: '/_next/static/:path*',
+      headers: [
+        {
+          key: 'Cache-Control',
+          value: 'public, max-age=31536000, immutable',
+        },
+      ],
+    },
+  ],
   reactStrictMode: true,
   webpack: (config, { isServer }) => {
     // Fixes npm packages that depend on `buffer` module
