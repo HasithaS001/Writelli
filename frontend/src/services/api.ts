@@ -40,9 +40,13 @@ async function apiRequest<T>(endpoint: string, data: any): Promise<T | null> {
     console.log(`Making API request to ${endpoint}`);
     
     try {
-      // Remove leading slash from endpoint if present to avoid double slashes
-      const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
-      const response = await fetch(`${API_URL}/${cleanEndpoint}`, {
+      // Ensure proper URL construction
+      const baseUrl = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
+      const apiPath = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+      const url = `${baseUrl}/api${apiPath}`;
+      console.log('Making request to:', url);
+      
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
