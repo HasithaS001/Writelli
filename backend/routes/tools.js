@@ -48,6 +48,7 @@ function stripHtml(html) {
 // Helper function to generate content with Gemini API
 async function generateContent(prompt) {
   try {
+    console.log('Starting content generation with prompt:', prompt.substring(0, 100) + '...');
     // Log the request for rate limiting
     logRequest();
     
@@ -106,6 +107,7 @@ async function generateContent(prompt) {
 
 // 1. Grammar Checker
 router.post('/grammar-checker', checkRateLimit, async (req, res) => {
+  console.log('Received grammar checker request');
   try {
     const { text, mode } = req.body;
     
