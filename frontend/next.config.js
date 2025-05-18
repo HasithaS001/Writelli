@@ -2,7 +2,25 @@ const webpack = require('webpack');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  headers: async () => [
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: `
+              default-src 'self';
+              script-src 'self' 'unsafe-eval' 'unsafe-inline';
+              style-src 'self' 'unsafe-inline';
+              img-src 'self' blob: data:;
+              font-src 'self';
+              connect-src 'self' https://*.stripe.com https://*.supabase.co https://*.supabase.in https://www.facebook.com https://walrus-app-57iak.ondigitalocean.app;
+              frame-src 'self';
+            `.replace(/\s+/g, ' ').trim()
+          }
+        ]
+      },
     {
       source: '/_next/static/:path*',
       headers: [
