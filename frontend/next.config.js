@@ -8,30 +8,45 @@ const nextConfig = {
         source: '/:path*',
         headers: [
           {
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on',
+          },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=31536000; includeSubDomains',
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+          {
             key: 'Content-Security-Policy',
-            value: `
-              default-src 'self';
-              script-src 'self' 'unsafe-eval' 'unsafe-inline';
-              style-src 'self' 'unsafe-inline';
-              img-src 'self' blob: data:;
-              font-src 'self';
-              connect-src 'self' https://*.stripe.com https://*.supabase.co https://*.supabase.in https://www.facebook.com https://walrus-app-57iak.ondigitalocean.app;
-              frame-src 'self';
-            `.replace(/\s+/g, ' ').trim()
-          }
-        ]
+            value: `default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://*.stripe.com https://*.supabase.co https://*.supabase.in https://www.facebook.com https://walrus-app-57iak.ondigitalocean.app; frame-src 'self';`.trim(),
+          },
+        ],
       },
-    {
-      source: '/_next/static/:path*',
-      headers: [
-        {
-          key: 'Cache-Control',
-          value: 'public, max-age=31536000, immutable',
-        },
-      ],
-    },
-  ],
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+    ];
+  },
+  
   reactStrictMode: true,
+  
   webpack: (config, { isServer }) => {
     // Fixes npm packages that depend on `buffer` module
     if (!isServer) {
@@ -54,62 +69,12 @@ const nextConfig = {
     }
     return config;
   },
-  async headers() {
-    return [
-      {
-        // Apply these headers to all routes
-        source: '/:path*',
-        headers: [
-          {
-            key: 'X-DNS-Prefetch-Control',
-            value: 'on'
-          },
-          {
-            key: 'Strict-Transport-Security',
-            value: 'max-age=31536000; includeSubDomains'
-          },
-          {
-            key: 'X-Frame-Options',
-            value: 'SAMEORIGIN'
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff'
-          },
-          {
-            key: 'Referrer-Policy',
-            value: 'strict-origin-when-cross-origin'
-          },
-          {
-            key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=()'
-          },
-          {
-            key: 'Content-Security-Policy',
-            value: `
-              default-src 'self';
-              script-src 'self' 'unsafe-inline' 'unsafe-eval' https://m.stripe.network https://*.stripe.com;
-              style-src 'self' 'unsafe-inline' https://m.stripe.network https://*.stripe.com https://fonts.googleapis.com;
-              img-src 'self' data: https://*.stripe.com https://*.facebook.com;
-              font-src 'self' data: https://fonts.gstatic.com;
-              connect-src 'self' https://*.stripe.com https://*.supabase.co https://*.supabase.in https://www.facebook.com http://localhost:5000;
-              frame-src 'self' https://*.stripe.com https://*.facebook.com;
-              form-action 'self';
-              base-uri 'self';
-              object-src 'none';
-            `.replace(/\s+/g, ' ').trim()
-          }
-        ]
-      }
-    ];
-  },
+
   async rewrites() {
     return [
       {
         source: '/api/:path*',
-        destination: process.env.NODE_ENV === 'production' 
-          ? 'https://your-backend-api-url.com/api/:path*' 
-          : 'http://localhost:5000/api/:path*',
+        destination: `${process.env.NEXT_PUBLIC_API_URL}/:path*`,
       },
     ];
   },
