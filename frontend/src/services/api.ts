@@ -53,7 +53,6 @@ async function apiRequest<T>(endpoint: string, data: any): Promise<T | null> {
         },
         body: JSON.stringify(data),
         signal: controller.signal,
-        credentials: 'include',
       });
     
       // Clear the timeout since the request completed

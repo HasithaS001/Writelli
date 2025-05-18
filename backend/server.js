@@ -41,26 +41,16 @@ app.use((req, res, next) => {
 
 // Configure CORS
 app.use(cors({
-  origin: '*',  // Allow all origins
+  origin: process.env.NODE_ENV === 'production'
+    ? 'https://frontend-7z24h.ondigitalocean.app'
+    : 'http://localhost:3000',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 }));
 
 // Parse JSON bodies
 app.use(express.json({ limit: '10mb' }));
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error('Error:', err);
-  res.status(500).json({ error: 'Internal Server Error', message: err.message });
-});
-
-// Handle 404s
-app.use((req, res) => {
-  res.status(404).json({ error: 'Not Found', message: 'The requested endpoint does not exist' });
-});
-
-app.use(express.json({ limit: '10mb' })); // Increase JSON payload limit
 
 // Initialize Gemini API
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -71,6 +61,17 @@ app.use('/api/tools', toolsRouter);
 
 const webhooksRouter = require('./routes/webhooks');
 app.use('/api/webhooks', webhooksRouter);
+
+// Handle 404s - After all routes
+app.use((req, res) => {
+  res.status(404).json({ error: 'Not Found', message: 'The requested endpoint does not exist' });
+});
+
+// Error handling middleware - Must be last
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  res.status(500).json({ error: 'Internal Server Error', message: err.message });
+});
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
