@@ -32,6 +32,12 @@ console.log('PORT:', process.env.PORT);
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Health check endpoint - before all middleware
+app.get('/api/health', (req, res) => {
+  console.log('Health check endpoint accessed');
+  res.status(200).json({ status: 'ok', message: 'Server is running' });
+});
+
 // Middleware - Configure CORS with specific options
 // Request logging middleware
 app.use((req, res, next) => {
@@ -39,15 +45,8 @@ app.use((req, res, next) => {
   next();
 });
 
-// Configure CORS
-app.use(cors({
-  origin: process.env.NODE_ENV === 'production'
-    ? ['https://frontend-7z24h.ondigitalocean.app', 'https://writelli.com']
-    : 'http://localhost:3000',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
-}));
+// Configure CORS - Allow all origins temporarily for testing
+app.use(cors());
 
 // Parse JSON bodies
 app.use(express.json({ limit: '10mb' }));
@@ -71,11 +70,6 @@ app.use((req, res) => {
 app.use((err, req, res, next) => {
   console.error('Error:', err);
   res.status(500).json({ error: 'Internal Server Error', message: err.message });
-});
-
-// Health check endpoint
-app.get('/api/health', (req, res) => {
-  res.status(200).json({ status: 'ok', message: 'Server is running' });
 });
 
 // Start server
