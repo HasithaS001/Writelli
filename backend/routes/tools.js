@@ -399,31 +399,31 @@ router.post('/paraphraser', checkRateLimit, async (req, res) => {
     let prompt;
     switch (mode) {
       case 'standard':
-        prompt = `Paraphrase the following text for general casual use: "${plainText}"`;
+        prompt = `Paraphrase the following text for general casual use. Maintain approximately the same length as the original text: "${plainText}"`;
         break;
       case 'fluency':
-        prompt = `Paraphrase the following text to make it more readable and grammatically correct: "${plainText}"`;
+        prompt = `Paraphrase the following text to make it more readable and grammatically correct. Keep the output length similar to the input: "${plainText}"`;
         break;
       case 'formal':
-        prompt = `Paraphrase the following text into a professional tone: "${plainText}"`;
+        prompt = `Paraphrase the following text into a professional tone. Maintain approximately the same word count as the original: "${plainText}"`;
         break;
       case 'creative':
-        prompt = `Paraphrase the following text with creative flair and literary style: "${plainText}"`;
+        prompt = `Paraphrase the following text with creative flair and literary style. Keep the output length similar to the input length: "${plainText}"`;
         break;
       case 'shorten':
-        prompt = `Paraphrase the following text to reduce word count while keeping the same meaning: "${plainText}"`;
+        prompt = `Paraphrase the following text to be slightly more concise while keeping the essential meaning: "${plainText}"`;
         break;
       case 'expand':
-        prompt = `Paraphrase the following text to add more detail and explanation: "${plainText}"`;
+        prompt = `Paraphrase the following text to add more detail and explanation. Aim for about 20-30% more words than the original: "${plainText}"`;
         break;
       case 'academic':
-        prompt = `Paraphrase the following text in a formal academic tone while avoiding plagiarism: "${plainText}"`;
+        prompt = `Paraphrase the following text in a formal academic tone while avoiding plagiarism. Maintain approximately the same length as the source text: "${plainText}"`;
         break;
       case 'seo':
-        prompt = `Paraphrase the following text to be SEO-friendly for content marketing: "${plainText}"`;
+        prompt = `Paraphrase the following text to be SEO-friendly for content marketing. Keep the output length similar to the input: "${plainText}"`;
         break;
       default:
-        prompt = `Paraphrase the following text: "${plainText}"`;
+        prompt = `Paraphrase the following text while maintaining approximately the same length as the original: "${plainText}"`;
     }
     
     const result = await generateContent(prompt);
