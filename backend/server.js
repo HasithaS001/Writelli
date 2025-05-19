@@ -42,7 +42,7 @@ app.use((req, res, next) => {
 // Configure CORS
 app.use(cors({
   origin: process.env.NODE_ENV === 'production'
-    ? 'https://frontend-7z24h.ondigitalocean.app'
+    ? ['https://frontend-7z24h.ondigitalocean.app', 'https://writelli.com']
     : 'http://localhost:3000',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
