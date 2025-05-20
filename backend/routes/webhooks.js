@@ -265,7 +265,49 @@ async function handleSubscriptionPaymentSuccess(data, custom_data) {
     } else if (subData && subData.length > 0) {
       console.log(`Successfully updated subscription by subscription_id ${lemon_squeezy_subscription_id}`);
     } else {
-      console.log(`No subscription found to update. This might be an issue.`);
+      // No subscription found - insert a new one if we have a user_id
+      if (user_id) {
+        console.log(`No subscription found. Creating new subscription for user ${user_id}`);
+        
+        // Log the entire data object to debug
+        console.log('Full webhook data:', JSON.stringify(data, null, 2));
+        
+        // Extract customer ID from the webhook data
+        const lemon_squeezy_customer_id = data.attributes.customer_id;
+        
+        // Create subscription record object
+        const subscriptionRecord = {
+          profile_id: user_id,
+          lemon_squeezy_subscription_id,
+          lemon_squeezy_customer_id,
+          status: 'active',
+          plan,
+          current_period_end,
+          created_at: new Date(),
+          updated_at: new Date()
+        };
+        
+        console.log(`Inserting new subscription with:`, JSON.stringify(subscriptionRecord, null, 2));
+        
+        try {
+          const { data: insertData, error: insertError } = await supabase
+            .from('subscriptions')
+            .insert(subscriptionRecord)
+            .select();
+            
+          if (insertError) {
+            console.error('Error creating new subscription:', insertError.message);
+            console.error('Error details:', insertError.details);
+            console.error('Error hint:', insertError.hint);
+          } else {
+            console.log(`Successfully created new subscription for user ${user_id}:`, insertData);
+          }
+        } catch (err) {
+          console.error('Exception during subscription insert:', err);
+        }
+      } else {
+        console.error(`Cannot create subscription: No user_id provided in custom_data`);
+      }
     }
   } catch (error) {
     console.error('Unexpected error in handleSubscriptionPaymentSuccess:', error);
