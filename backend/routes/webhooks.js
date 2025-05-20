@@ -28,7 +28,7 @@ router.post('/lemon-squeezy', express.raw({ type: 'application/json' }), async (
     // In production, remove this bypass
     const skipValidation = process.env.NODE_ENV === 'development';
     
-    if (!signature && !skipValidation) {
+    if (!signature) {
       return res.status(400).send('Missing signature header');
     }
     
