@@ -36,7 +36,7 @@ router.post('/lemon-squeezy', express.raw({ type: 'application/json' }), async (
     const payload = Buffer.isBuffer(req.body) ? req.body.toString('utf8') : JSON.stringify(req.body);
    
     // Verify the webhook signature (skip in development if needed)
-    if (!skipValidation && !verifyWebhookSignature(payload, signature)) {
+    if (!verifyWebhookSignature(payload, signature)) {
       return res.status(401).send('Invalid signature');
     }
     
