@@ -19,7 +19,12 @@ const ToolSelector: React.FC<ToolSelectorProps> = ({ selectedTool, onSelectTool 
 
   return (
     <div className="flex flex-col space-y-2 bg-white p-4 rounded-lg shadow-md">
-      <h2 className="text-xl font-bold text-gray-800 mb-4">Tools</h2>
+      <button 
+        onClick={() => router.push('/')} 
+        className="text-xl font-bold text-gray-800 mb-4 hover:text-blue-600 transition-colors text-left"
+      >
+        Writelli
+      </button>
       <div className="flex flex-col space-y-1">
         {TOOLS.map((tool) => (
           <button

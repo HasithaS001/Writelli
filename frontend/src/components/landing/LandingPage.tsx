@@ -14,6 +14,7 @@ import DidYouKnow from './DidYouKnow';
 import PricingSection from './PricingSection';
 import AuthorsReviewSection from './AuthorsReviewSection';
 import CTASection from './CTASection';
+import FAQSection from './FAQSection';
 import Footer from './Footer';
 
 const LandingPage = () => {
@@ -33,6 +34,7 @@ const LandingPage = () => {
         <PricingSection showComparisonToggle={false} initialComparisonState={false} />
         <AuthorsReviewSection />
         <CTASection />
+        <FAQSection />
       </main>
       <Footer />
     </div>

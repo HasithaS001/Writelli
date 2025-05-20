@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 
 interface TypingAnimationProps {
   text: string;
-  typingSpeed?: number;
+  typingSpeed?: number; // Words per second
   className?: string;
   onComplete?: () => void;
 }
 
 const TypingAnimation: React.FC<TypingAnimationProps> = ({
   text,
-  typingSpeed = 30, // Characters per second
+  typingSpeed = 3, // Words per second
   className = '',
   onComplete
 }) => {
@@ -25,22 +25,15 @@ const TypingAnimation: React.FC<TypingAnimationProps> = ({
   }, [text]);
 
   useEffect(() => {
-    if (currentIndex < text.length) {
+    // Split text into words while preserving HTML tags
+    const words = text.split(/(?=<[^>]*>)|(?<=[^<]\s+)/).filter(word => word.trim() !== '');
+    
+    if (currentIndex < words.length) {
       const timeoutId = setTimeout(() => {
-        // Handle HTML tags - if we encounter a tag, we need to include the entire tag at once
-        if (text[currentIndex] === '<') {
-          // Find the closing '>' of this tag
-          const endTagIndex = text.indexOf('>', currentIndex);
-          if (endTagIndex !== -1) {
-            // Include the entire tag
-            setDisplayedText(prev => prev + text.substring(currentIndex, endTagIndex + 1));
-            setCurrentIndex(endTagIndex + 1);
-            return;
-          }
-        }
-
-        // Normal character
-        setDisplayedText(prev => prev + text[currentIndex]);
+        const currentWord = words[currentIndex];
+        // Add a space after the word unless it's an HTML tag or the last word
+        const space = currentWord.startsWith('<') || currentIndex === words.length - 1 ? '' : ' ';
+        setDisplayedText(prev => prev + currentWord + space);
         setCurrentIndex(prev => prev + 1);
       }, 1000 / typingSpeed);
 
