@@ -20,11 +20,14 @@ interface SubscriptionData {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
   const [sidebarOpen, setSidebarOpen] = useState(typeof window !== 'undefined' ? window.innerWidth > 768 : true);
 
   useEffect(() => {
     const handleResize = () => {
-      setSidebarOpen(window.innerWidth > 768);
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
+      setSidebarOpen(!mobile);
     };
 
     window.addEventListener('resize', handleResize);
@@ -116,12 +119,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Modern Sidebar */}
-      <aside 
-        className={`bg-white shadow-xl transition-all duration-300 ${sidebarOpen ? 'w-64' : 'w-20'} 
-        fixed inset-y-0 left-0 z-10 flex flex-col`}
-      >
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      {/* Modern Sidebar - Desktop */}
+      {!isMobile && (
+        <aside 
+          className={`bg-white shadow-xl transition-all duration-300 ${sidebarOpen ? 'w-64' : 'w-20'} 
+          fixed inset-y-0 left-0 z-10 flex flex-col`}
+        >
         {/* Sidebar Header */}
         <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
           {sidebarOpen ? (
@@ -190,9 +194,35 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
         </div>
       </aside>
+      )}
 
       {/* Main Content */}
-      <div className={`flex-1 transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-20'}`}>
+      <div className={`flex-1 transition-all duration-300 ${!isMobile ? (sidebarOpen ? 'ml-64' : 'ml-20') : 'ml-0'}`}>
+        {/* Mobile Tools Bar */}
+        {isMobile && (
+          <div className="sticky top-16 z-10 bg-white shadow-md overflow-x-auto">
+            <div className="flex space-x-2 p-4 min-w-max">
+              {TOOLS.map((tool) => (
+                <Link 
+                  key={tool.id} 
+                  href={`/${tool.id}`}
+                  className={`flex items-center px-4 py-2 text-sm font-medium rounded-md whitespace-nowrap
+                    ${currentTool === tool.id 
+                      ? 'bg-[#e6f2ff] text-[#0072df]' 
+                      : 'text-black hover:bg-gray-100'}
+                  `}
+                >
+                  <div className="flex items-center space-x-2">
+                    <div className="text-gray-600">
+                      {getIconForTool(tool.id, currentTool === tool.id)}
+                    </div>
+                    <span>{tool.name}</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
         <header className="bg-white shadow-sm sticky top-0 z-10">
           <div className="px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex justify-between items-center">
