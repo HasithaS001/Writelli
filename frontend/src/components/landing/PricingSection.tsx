@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { CheckIcon } from '@heroicons/react/24/solid';
 import { XMarkIcon } from '@heroicons/react/24/solid';
 
-const pricingPlans = [
+const monthlyPlans = [
   {
     name: 'Free',
     price: '0',
@@ -22,7 +22,7 @@ const pricingPlans = [
   },
   {
     name: 'Pro',
-    price: '8.99',
+    price: '6.99',
     description: 'For professionals who need advanced writing tools.',
     features: [
       'Unlimited word limit',
@@ -57,6 +57,41 @@ interface PricingSectionProps {
   initialComparisonState?: boolean;
 }
 
+const yearlyPlans = [
+  {
+    name: 'Free',
+    price: '0',
+    description: 'Perfect for casual writers and students.',
+    features: [
+      '700-word limit',
+      'Basic grammar checker',
+      'Basic modes in Paraphraser',
+      'Basic modes in Summarizer',
+      'Access to Natural Flow mode in Humanizer',
+    ],
+    cta: 'Get Started',
+    popular: false,
+  },
+  {
+    name: 'Pro',
+    price: '69.99',
+    description: 'For professionals who need advanced writing tools.',
+    features: [
+      'Unlimited word limit',
+      'Full access to all writing tools',
+      'Advanced grammar & readability checkers',
+      'All Paraphraser modes (fluency, formal, creative, etc.)',
+      'All Summarizer formats (bullet, executive, detailed)',
+      'Full Tone Converter & Humanizer',
+      'Multi-language Translator',
+      'Upload unlimited URLs and DOCX files',
+      '2 months free with annual billing',
+    ],
+    cta: 'Start Free Trial',
+    popular: true,
+  },
+];
+
 const PricingSection = ({ 
   showComparisonToggle = true, 
   initialComparisonState = false 
@@ -65,6 +100,9 @@ const PricingSection = ({
   const router = useRouter();
   const [isLoading, setIsLoading] = useState<number | null>(null);
   const [showComparison, setShowComparison] = useState(initialComparisonState);
+  const [isYearly, setIsYearly] = useState(false);
+  
+  const pricingPlans = isYearly ? yearlyPlans : monthlyPlans;
 
   const handlePlanSelection = (plan: typeof pricingPlans[0], index: number) => {
     setIsLoading(index);
@@ -74,6 +112,8 @@ const PricingSection = ({
       if (user) {
         // User is logged in, redirect to Lemon Squeezy checkout with user data
         const checkoutUrl = new URL('https://writelli.lemonsqueezy.com/buy/59d7b5c0-6485-4860-bd75-d608d2976a10');
+        // Add billing interval to the checkout URL
+        checkoutUrl.searchParams.append('checkout[variant]', isYearly ? 'yearly' : 'monthly');
         
         // Add custom data to pass user ID to webhook
         checkoutUrl.searchParams.append('checkout[custom][user_id]', user.id);
@@ -106,10 +146,29 @@ const PricingSection = ({
     <section id="pricing" className="py-20 bg-gradient-to-b from-white to-blue-50">
       <div className="container mx-auto px-4">
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">
+          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-8">
             Simple, <span className="text-[#4169e2]">Transparent</span> Pricing
           </h2>
-          <p className="mt-4 text-xl text-gray-600">
+          
+          {/* Billing Toggle */}
+          <div className="inline-flex items-center justify-center gap-4 mb-8 bg-gray-50 p-2 rounded-full">
+            <button 
+              onClick={() => setIsYearly(false)}
+              className={`px-6 py-2 rounded-full transition-all ${!isYearly ? 'bg-white shadow-md text-gray-900 font-semibold' : 'text-gray-600 hover:text-gray-900'}`}
+            >
+              Monthly
+            </button>
+            <button 
+              onClick={() => setIsYearly(true)}
+              className={`px-6 py-2 rounded-full transition-all ${isYearly ? 'bg-white shadow-md text-gray-900 font-semibold' : 'text-gray-600 hover:text-gray-900'}`}
+            >
+              Yearly
+              <span className="ml-1.5 inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">
+                Save 17%
+              </span>
+            </button>
+          </div>
+          <p className="text-xl text-gray-600">
             Choose the plan that works best for your writing needs.
           </p>
         </div>
