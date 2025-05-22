@@ -32,19 +32,29 @@ export default function ContactPage() {
     setSubmitStatus({ type: null, message: null });
 
     try {
-      // This would be replaced with your actual API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Simulate successful submission
-      setSubmitStatus({
-        type: 'success',
-        message: 'Thank you for your message! We will get back to you soon.'
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
       });
-      setFormData({ name: '', email: '', subject: '', message: '' });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setSubmitStatus({
+          type: 'success',
+          message: data.message
+        });
+        setFormData({ name: '', email: '', subject: '', message: '' });
+      } else {
+        throw new Error(data.message);
+      }
     } catch (error) {
       setSubmitStatus({
         type: 'error',
-        message: 'Something went wrong. Please try again later.'
+        message: error instanceof Error ? error.message : 'Something went wrong. Please try again later.'
       });
     } finally {
       setIsSubmitting(false);
@@ -81,7 +91,7 @@ export default function ContactPage() {
                   </svg>
                 </div>
                 <div className="ml-4">
-                  <p className="text-base">contact@aiwriter.com</p>
+                  <p className="text-base text-black">hello@writelli.com</p>
                 </div>
               </div>
               
@@ -92,7 +102,7 @@ export default function ContactPage() {
                   </svg>
                 </div>
                 <div className="ml-4">
-                  <p className="text-base">+1 (555) 123-4567</p>
+                  <p className="text-base text-black">+94702188978</p>
                 </div>
               </div>
               
@@ -104,7 +114,7 @@ export default function ContactPage() {
                   </svg>
                 </div>
                 <div className="ml-4">
-                  <p className="text-base">123 AI Street, Silicon Valley, CA 94000</p>
+                  <p className="text-base text-black">61/58 Sampath uyana, Eldeniya, Kadawatha, Sri Lanka</p>
                 </div>
               </div>
             </div>
@@ -116,7 +126,7 @@ export default function ContactPage() {
           <div className="w-full max-w-lg">
             <div className="md:hidden text-center mb-10">
               <h1 className="text-3xl font-bold text-gray-900 mb-4">Get In Touch</h1>
-              <p className="text-lg text-gray-600">
+              <p className="text-lg text-black">
                 We'd love to hear from you. Send us a message and we'll respond as soon as possible.
               </p>
             </div>
@@ -135,7 +145,7 @@ export default function ContactPage() {
               <h2 className="text-2xl font-semibold text-gray-800 mb-6">Send us a message</h2>
               
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="name" className="block text-sm font-medium text-black">
                   Your Name
                 </label>
                 <input
@@ -150,7 +160,7 @@ export default function ContactPage() {
               </div>
               
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="email" className="block text-sm font-medium text-black">
                   Email Address
                 </label>
                 <input
@@ -165,7 +175,7 @@ export default function ContactPage() {
               </div>
               
               <div>
-                <label htmlFor="subject" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="subject" className="block text-sm font-medium text-black">
                   Subject
                 </label>
                 <select
@@ -186,7 +196,7 @@ export default function ContactPage() {
               </div>
               
               <div>
-                <label htmlFor="message" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="message" className="block text-sm font-medium text-black">
                   Your Message
                 </label>
                 <textarea
