@@ -66,7 +66,26 @@ const AuthorsReviewSection = () => {
 
         <div className="max-w-4xl mx-auto">
           {/* Category Tabs */}
-          <div className="flex justify-center mb-12 border-b border-gray-200">
+          <div className="md:hidden max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 mb-12 border-b border-gray-200">
+            <div className="flex flex-col">
+              {categories.map((category) => (
+                <button
+                  key={category.id}
+                  onClick={() => setActiveCategory(category.id)}
+                  className={`px-6 py-3 text-lg font-medium transition-colors duration-200 relative ${
+                    activeCategory === category.id
+                      ? 'text-[#0072df] bg-blue-50'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                >
+                  {category.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Desktop Category Tabs */}
+          <div className="hidden md:flex justify-center mb-12 border-b border-gray-200">
             {categories.map((category) => (
               <button
                 key={category.id}
