@@ -11,8 +11,7 @@ import {
   SummarizerResponse,
   TranslatorResponse,
   ToneConverterResponse,
-  HumanizerResponse,
-  ArticleRewriterResponse
+  HumanizerResponse
 } from '@/types';
 
 import { API_URL } from '@/app/env';
@@ -23,8 +22,7 @@ import {
   getFallbackSummarizerResponse,
   getFallbackTranslatorResponse,
   getFallbackToneConverterResponse,
-  getFallbackHumanizerResponse,
-  getFallbackArticleRewriterResponse
+  getFallbackHumanizerResponse
 } from './fallbacks';
 
 /**
@@ -211,11 +209,6 @@ export async function humanizeText(text: string, mode: HumanizerMode = 'natural'
   return apiRequest<HumanizerResponse>('/tools/humanizer', { text, mode });
 }
 
-// Article Rewriter API
-export async function rewriteArticle(text: string): Promise<ArticleRewriterResponse | null> {
-  return apiRequest<ArticleRewriterResponse>('/tools/article-rewriter', { text });
-}
-
 /**
  * Generic function to process text based on tool type
  */
@@ -223,26 +216,31 @@ export async function processText(
   toolType: ToolType, 
   text: string, 
   mode?: string,
-  targetLanguage?: string
+  targetLanguage?: string,
+  keywords?: string[]
 ): Promise<any> {
-  switch (toolType) {
-    case 'grammar-checker':
-      return checkGrammar(text, mode as GrammarCheckerMode);
-    case 'readability-checker':
-      return checkReadability(text);
-    case 'paraphraser':
-      return paraphraseText(text, mode as ParaphraserMode);
-    case 'summarizer':
-      return summarizeText(text, mode as SummarizerMode);
-    case 'translator':
-      return translateText(text, targetLanguage || 'English');
-    case 'tone-converter':
-      return convertTone(text, mode as ToneConverterMode);
-    case 'humanizer':
-      return humanizeText(text, mode as HumanizerMode);
-    case 'article-rewriter':
-      return rewriteArticle(text);
-    default:
-      throw new Error('Invalid tool type');
+  try {
+    switch (toolType) {
+      case 'grammar-checker':
+        return await checkGrammar(text, mode as GrammarCheckerMode);
+      case 'readability-checker':
+        return await checkReadability(text);
+      case 'paraphraser':
+        return await paraphraseText(text, mode as ParaphraserMode);
+      case 'summarizer':
+        return await summarizeText(text, mode as SummarizerMode);
+      case 'translator':
+        if (!targetLanguage) throw new Error('Target language is required for translation');
+        return await translateText(text, targetLanguage);
+      case 'tone-converter':
+        return await convertTone(text, mode as ToneConverterMode);
+      case 'humanizer':
+        return await humanizeText(text, mode as HumanizerMode);
+      default:
+        throw new Error('Invalid tool type');
+    }
+  } catch (error) {
+    console.error('Error processing text:', error);
+    throw error;
   }
 }

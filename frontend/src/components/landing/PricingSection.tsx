@@ -34,7 +34,7 @@ const monthlyPlans = [
       'Multi-language Translator',
       'Upload unlimited URLs and DOCX files',
     ],
-    cta: 'Start Free Trial',
+    cta: 'Join Waitlist',
     popular: true,
   },
 ];
@@ -87,7 +87,7 @@ const yearlyPlans = [
       'Upload unlimited URLs and DOCX files',
       '2 months free with annual billing',
     ],
-    cta: 'Start Free Trial',
+    cta: 'Access Waitlist',
     popular: true,
   },
 ];
@@ -107,38 +107,13 @@ const PricingSection = ({
   const handlePlanSelection = (plan: typeof pricingPlans[0], index: number) => {
     setIsLoading(index);
     
-    // For Pro plan with "Start Free Trial" CTA
-    if (plan.name === 'Pro' && plan.cta === 'Start Free Trial') {
-      if (user) {
-        // User is logged in, redirect to Lemon Squeezy checkout with user data
-        const checkoutUrl = new URL('https://writelli.lemonsqueezy.com/buy/59d7b5c0-6485-4860-bd75-d608d2976a10');
-        // Add billing interval to the checkout URL
-        checkoutUrl.searchParams.append('checkout[variant]', isYearly ? 'yearly' : 'monthly');
-        
-        // Add custom data to pass user ID to webhook
-        checkoutUrl.searchParams.append('checkout[custom][user_id]', user.id);
-        checkoutUrl.searchParams.append('checkout[email]', user.email || '');
-        
-        // Add source attribution
-        checkoutUrl.searchParams.append('checkout[custom][source]', 'pricing_page');
-        
-        // Add success_url parameter to redirect to home page after payment
-        checkoutUrl.searchParams.append('checkout[success_url]', `${window.location.origin}/`);
-        
-        // Optional: Add UTM parameters if available
-        const utmSource = new URLSearchParams(window.location.search).get('utm_source');
-        if (utmSource) {
-          checkoutUrl.searchParams.append('checkout[custom][utm_source]', utmSource);
-        }
-        
-        window.location.href = checkoutUrl.toString();
-      } else {
-        // User is not logged in, redirect to signup
-        router.push('/signup?redirect=pricing');
-      }
+    // For Pro plan with "Join Waitlist" CTA
+    if (plan.name === 'Pro' && plan.cta === 'Join Waitlist') {
+      // Redirect to waitlist page
+      router.push('/waitlist');
     } else {
-      // Handle free plan
-      router.push('/signup');
+      // For Free plan
+      router.push('/auth/signup');
     }
   };
 
@@ -186,7 +161,7 @@ const PricingSection = ({
             >
               {plan.popular && (
                 <div className="absolute top-0 right-0 bg-[#4169e2] text-white py-1 px-4 text-sm font-medium rounded-bl-lg">
-                  Most Popular
+                  Payments coming soon – Join waitlist
                 </div>
               )}
               <div className="p-8">

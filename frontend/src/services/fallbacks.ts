@@ -9,7 +9,6 @@ import {
   ParaphraserResponse,
   SummarizerResponse,
   TranslatorResponse,
-  ArticleRewriterResponse,
   ToneConverterResponse,
   HumanizerResponse
 } from '@/types';
@@ -204,20 +203,5 @@ export function getFallbackToneConverterResponse(text: string, tone: string): To
 export function getFallbackHumanizerResponse(text: string): HumanizerResponse {
   return {
     humanizedText: text
-  };
-}
-
-/**
- * Generate a fallback article rewriter response
- * @param text The original text to rewrite
- * @returns ArticleRewriterResponse with default scores and the original text
- */
-export function getFallbackArticleRewriterResponse(text: string): ArticleRewriterResponse {
-  return {
-    rewrittenText: text,
-    readabilityScore: 70,
-    uniquenessScore: 80,
-    seoScore: 75,
-    keywords: ['article', 'content']
   };
 }

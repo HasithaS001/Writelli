@@ -696,4 +696,111 @@ Original article:
   }
 });
 
+// Article Rewriter
+router.post('/article-rewriter', checkRateLimit, async (req, res) => {
+  try {
+    const { text, mode, keywords } = req.body;
+    
+    if (!text) {
+      return res.status(400).json({ error: 'No text provided' });
+    }
+
+    const plainText = stripHtml(text);
+    let prompt = '';
+
+    switch (mode) {
+      case 'readability':
+        prompt = `Rewrite the following article to improve its readability and engagement. Make it clearer, more concise, and easier to understand while maintaining the key information and meaning. Remove any unnecessary complexity, passive voice, or awkward phrasing. The rewritten version should flow naturally and be accessible to a general audience.
+
+Article to rewrite:
+"${plainText}"`;
+        break;
+
+      case 'seo':
+        prompt = `Rewrite the following article to optimize it for search engines while maintaining readability and natural flow. Incorporate these target keywords naturally: ${keywords.join(', ')}. Ensure proper keyword density without keyword stuffing. Use semantic variations and LSI keywords where appropriate. Structure the content with clear headings and maintain engaging, valuable content for readers.
+
+Article to rewrite:
+"${plainText}"`;
+        break;
+
+      case 'unique':
+        prompt = `Rewrite the following article to create a completely unique version while preserving the core meaning and key information. Use different sentence structures, synonyms, and rearrange paragraphs where appropriate. The output should pass AI detection tools and maintain a natural, human-like writing style.
+
+Article to rewrite:
+"${plainText}"`;
+        break;
+
+      case 'formal':
+        prompt = `Rewrite the following article in a formal, professional tone. Use appropriate academic or business language, maintain objectivity, and ensure proper structure. Remove casual language and colloquialisms while keeping the content engaging and authoritative.
+
+Article to rewrite:
+"${plainText}"`;
+        break;
+
+      case 'friendly':
+        prompt = `Rewrite the following article in a friendly, conversational tone. Make it more approachable and engaging while maintaining professionalism. Use a warm, personal voice, include relevant examples or analogies, and make complex concepts more relatable.
+
+Article to rewrite:
+"${plainText}"`;
+        break;
+
+      case 'persuasive':
+        prompt = `Rewrite the following article to be more persuasive and compelling. Strengthen arguments, add persuasive elements, and enhance the call-to-action. Use rhetorical devices, emotional appeals, and logical progression while maintaining credibility and authenticity.
+
+Article to rewrite:
+"${plainText}"`;
+        break;
+
+      default:
+        return res.status(400).json({ error: 'Invalid mode specified' });
+    }
+
+    console.log('Sending article rewrite request to Gemini API');
+    const rewrittenText = await generateContent(prompt);
+    console.log('Received response from Gemini API');
+
+    // Calculate scores based on mode and content analysis
+    let readabilityScore, uniquenessScore, seoScore;
+    
+    if (mode === 'readability') {
+      // Simple readability score based on sentence length and complexity
+      const sentences = rewrittenText.split(/[.!?]+/);
+      const avgWordsPerSentence = sentences.reduce((acc, s) => acc + s.split(/\s+/).length, 0) / sentences.length;
+      readabilityScore = Math.min(100, Math.max(80, 100 - (avgWordsPerSentence - 15) * 2));
+    }
+    
+    if (mode === 'unique') {
+      // Uniqueness score based on text variation from original
+      const similarity = require('string-similarity');
+      const similarityScore = similarity.compareTwoStrings(plainText, rewrittenText);
+      uniquenessScore = Math.min(100, Math.max(80, (1 - similarityScore) * 100));
+    }
+    
+    if (mode === 'seo' && keywords) {
+      // SEO score based on keyword presence and density
+      const keywordMatches = keywords.map(kw => {
+        const regex = new RegExp(kw, 'gi');
+        return (rewrittenText.match(regex) || []).length;
+      });
+      const totalMatches = keywordMatches.reduce((a, b) => a + b, 0);
+      const wordCount = rewrittenText.split(/\s+/).length;
+      const density = (totalMatches / wordCount) * 100;
+      seoScore = Math.min(100, Math.max(80, 90 - Math.abs(2 - density) * 5));
+    }
+
+    // Return the response
+    res.json({
+      rewrittenText,
+      readabilityScore,
+      uniquenessScore,
+      seoScore,
+      keywords: mode === 'seo' ? keywords : undefined
+    });
+
+  } catch (error) {
+    console.error('Error in article rewriter:', error);
+    res.status(500).json({ error: error.message || 'An error occurred while rewriting the article' });
+  }
+});
+
 module.exports = router;

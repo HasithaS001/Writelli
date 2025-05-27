@@ -91,6 +91,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         return <Icons.ToneConverter isActive={isActive} />;
       case 'humanizer':
         return <Icons.Humanizer isActive={isActive} />;
+      case 'article-rewriter':
+        return <Icons.ArticleRewriter isActive={isActive} />;
       default:
         return <Icons.GrammarChecker isActive={isActive} />;
     }
@@ -113,6 +115,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         return 'C';
       case 'humanizer':
         return 'H';
+      case 'article-rewriter':
+        return 'A';
       default:
         return 'G';
     }

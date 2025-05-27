@@ -6,8 +6,7 @@ export type ToolType =
   | 'summarizer'
   | 'translator'
   | 'tone-converter'
-  | 'humanizer'
-  | 'article-rewriter';
+  | 'humanizer';
 
 // Mode types for each tool
 export type GrammarCheckerMode = 'standard' | 'advanced';
@@ -25,8 +24,6 @@ export type SummarizerMode = 'bullet' | 'executive' | 'detailed';
 export type ToneConverterMode = 'formal' | 'friendly' | 'professional' | 'empathetic' | 'witty';
 export type HumanizerMode = 'natural' | 'bypass' | 'emotional' | 'conversational' | 'genz';
 
-export type ArticleRewriterMode = 'readability' | 'seo' | 'unique' | 'formal' | 'friendly' | 'persuasive';
-
 // API response types
 export interface ApiResponse {
   error?: string;
@@ -43,12 +40,14 @@ export interface GrammarCheckerResponse extends ApiResponse {
   }>;
 }
 
+export interface ReadabilityScores {
+  fleschKincaid: number;
+  gunningFog: number;
+}
+
 export interface ReadabilityCheckerResponse extends ApiResponse {
   readabilityAnalysis: string;
-  scores: {
-    fleschKincaid: number;
-    gunningFog: number;
-  };
+  scores: ReadabilityScores;
   improvementPoints: string[];
   revisedExample?: string;
 }
@@ -73,18 +72,6 @@ export interface HumanizerResponse extends ApiResponse {
   humanizedText: string;
 }
 
-export interface ArticleRewriterResponse extends ApiResponse {
-  rewrittenText: string;
-  readabilityScore?: number;
-  uniquenessScore?: number;
-  seoScore?: number;
-  keywords?: string[];
-  changes?: Array<{
-    original: string;
-    rewritten: string;
-    type: 'word' | 'phrase' | 'sentence';
-  }>;
-}
 
 // Tool descriptions for UI
 export interface ToolDescription {
@@ -99,43 +86,6 @@ export interface ToolDescription {
 }
 
 export const TOOLS: ToolDescription[] = [
-  {
-    id: 'article-rewriter',
-    name: 'Article Rewriter',
-    description: 'Rewrite articles to improve readability, optimize for SEO, or change tone while maintaining meaning.',
-    modes: [
-      {
-        id: 'readability',
-        name: 'Improve Readability',
-        description: 'Enhance clarity and make content easier to read'
-      },
-      {
-        id: 'seo',
-        name: 'SEO Optimization',
-        description: 'Optimize content for search engines with target keywords'
-      },
-      {
-        id: 'unique',
-        name: 'Make Unique',
-        description: 'Create a unique version while preserving the meaning'
-      },
-      {
-        id: 'formal',
-        name: 'Formal Tone',
-        description: 'Convert to a professional and formal writing style'
-      },
-      {
-        id: 'friendly',
-        name: 'Friendly Tone',
-        description: 'Make the content more conversational and approachable'
-      },
-      {
-        id: 'persuasive',
-        name: 'Persuasive Tone',
-        description: 'Enhance persuasive elements and call-to-action'
-      }
-    ]
-  },
   {
     id: 'grammar-checker',
     name: 'Grammar Checker',
