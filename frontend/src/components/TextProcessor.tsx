@@ -19,7 +19,8 @@ import {
   SummarizerResponse,
   TranslatorResponse,
   ToneConverterResponse,
-  HumanizerResponse
+  HumanizerResponse,
+  ArticleRewriterResponse
 } from '@/types';
 import { processText } from '@/services/api';
 
@@ -37,6 +38,7 @@ const getToolDisplayName = (toolType: ToolType): string => {
     case 'translator': return 'Translator';
     case 'tone-converter': return 'Tone';
     case 'humanizer': return 'Humanizer';
+    case 'article-rewriter': return 'Article Rewriter';
     default: return 'Text';
   }
 };
@@ -50,6 +52,7 @@ const getToolActionText = (toolType: ToolType): string => {
     case 'translator': return 'translate';
     case 'tone-converter': return 'convert';
     case 'humanizer': return 'humanize';
+    case 'article-rewriter': return 'rewrite';
     default: return 'process';
   }
 };
@@ -62,6 +65,7 @@ const getToolModes = (toolType: ToolType): string[] => {
     case 'summarizer': return ['bullet', 'executive', 'detailed'];
     case 'tone-converter': return ['formal', 'friendly', 'professional', 'empathetic', 'witty'];
     case 'humanizer': return ['natural', 'bypass', 'emotional', 'conversational', 'genz'];
+    case 'article-rewriter': return ['readability', 'seo', 'unique', 'formal', 'friendly', 'persuasive'];
     default: return [];
   }
 };
@@ -73,11 +77,12 @@ const isProOnlyMode = (toolType: ToolType, mode: string): boolean => {
     case 'summarizer': return ['detailed'].includes(mode);
     case 'humanizer': return ['bypass', 'genz'].includes(mode);
     case 'tone-converter': return ['professional', 'witty'].includes(mode);
+    case 'article-rewriter': return ['seo', 'unique', 'persuasive'].includes(mode);
     default: return false;
   }
 };
 
-const TextProcessor: React.FC<TextProcessorProps> = ({ toolType }) => {
+const TextProcessor: React.FC<TextProcessorProps> = ({ toolType }): React.ReactElement => {
   const router = useRouter();
   
   // Use subscription data to determine plan limits
@@ -182,43 +187,50 @@ const TextProcessor: React.FC<TextProcessorProps> = ({ toolType }) => {
         `;
       } else if (toolType === 'grammar-checker') {
         const grammarResult = result as GrammarCheckerResponse;
-        
-        // Get the corrected text
-        let correctedText = grammarResult.correctedText;
-        
-        // Check if there are any actual corrections (where original and corrected are different)
-        const hasRealCorrections = grammarResult.corrections && 
-          grammarResult.corrections.some(correction => correction.original !== correction.corrected);
-        
-        // If we have corrections, use the color-coded text if available
-        if (hasRealCorrections) {
-          // Use color-coded text if available, otherwise fallback to the previous highlighting method
-          if (grammarResult.colorCodedText) {
-            processedText = grammarResult.colorCodedText;
-          } else {
-            // Start with the corrected text (fallback to old method)
-            let highlightedText = correctedText;
-            
-            // Process each correction to highlight it in bold
-            grammarResult.corrections.forEach((correction: { original: string; corrected: string; color?: string }) => {
-              // Only highlight if the correction is different from the original
+        if (grammarResult && grammarResult.correctedText) {
+          let coloredText = grammarResult.correctedText;
+          
+          // Apply corrections with color coding and straight underline
+          if (grammarResult.corrections && grammarResult.corrections.length > 0) {
+            // Sort corrections by length (longest first) to handle nested corrections
+            const sortedCorrections = [...grammarResult.corrections].sort(
+              (a, b) => b.corrected.length - a.corrected.length
+            );
+
+            sortedCorrections.forEach(correction => {
               if (correction.original !== correction.corrected) {
-                // Escape special regex characters in the corrected text
                 const escapedCorrected = correction.corrected.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                
-                // Create a regex to find the corrected text
                 const regex = new RegExp(`(${escapedCorrected})`, 'g');
                 
-                // Use color if available, otherwise use bold
-                const color = correction.color || '#3b82f6'; // Default to blue if no color
-                highlightedText = highlightedText.replace(
-                  regex, 
-                  `<span style="color: ${color}; font-weight: bold;" title="Original: ${correction.original}">$1</span>`
+                // Use different colors for different types of corrections
+                const colorClass = correction.color === 'red' ? 'text-red-500' :
+                                  correction.color === 'blue' ? 'text-blue-500' :
+                                  correction.color === 'green' ? 'text-green-500' :
+                                  'text-red-500'; // Default to red for errors
+                
+                coloredText = coloredText.replace(
+                  regex,
+                  `<span class="${colorClass} border-b border-current" title="Original: ${correction.original}">${correction.corrected}</span>`
                 );
               }
             });
-            
-            processedText = highlightedText;
+            processedText = coloredText;
+          } else {
+            processedText = `
+              <div class="p-8 bg-gradient-to-br from-green-50 to-teal-50 rounded-xl shadow-sm border border-green-100">
+                <div class="flex items-center space-x-4">
+                  <div class="bg-green-100 p-3 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="text-lg font-semibold text-gray-800">Your text has perfect grammar!</h3>
+                    <p class="text-gray-600">No corrections needed. Well done!</p>
+                  </div>
+                </div>
+              </div>
+            `;
           }
         } else {
           // If no corrections were found, show a success message with thumbs up illustration
@@ -240,7 +252,7 @@ const TextProcessor: React.FC<TextProcessorProps> = ({ toolType }) => {
             </div>
           `;
         }
-      } else if (toolType === 'readability-checker') {
+      } else if (toolType as ToolType === 'readability-checker') {
         const readabilityResult = result as ReadabilityCheckerResponse;
         if (readabilityResult.scores) {
           setReadabilityScores(readabilityResult.scores);
@@ -252,30 +264,88 @@ const TextProcessor: React.FC<TextProcessorProps> = ({ toolType }) => {
           setRevisedExample(readabilityResult.revisedExample);
         }
         processedText = readabilityResult.readabilityAnalysis;
-      } else if (toolType === 'paraphraser') {
+      } else if (toolType as ToolType === 'paraphraser') {
         const paraphraserResult = result as ParaphraserResponse;
         if (paraphraserResult && paraphraserResult.paraphrasedText) {
           processedText = paraphraserResult.paraphrasedText;
         }
-      } else if (toolType === 'summarizer') {
+      } else if (toolType as ToolType === 'summarizer') {
         const summarizerResult = result as SummarizerResponse;
         if (summarizerResult && summarizerResult.summary) {
           processedText = summarizerResult.summary;
         }
-      } else if (toolType === 'translator') {
+      } else if (toolType as ToolType === 'translator') {
         const translatorResult = result as TranslatorResponse;
         if (translatorResult && translatorResult.translatedText) {
           processedText = translatorResult.translatedText;
         }
-      } else if (toolType === 'tone-converter') {
+      } else if (toolType as ToolType === 'tone-converter') {
         const toneResult = result as ToneConverterResponse;
         if (toneResult && toneResult.convertedText) {
           processedText = toneResult.convertedText;
         }
-      } else if (toolType === 'humanizer') {
+      } else if (toolType as ToolType === 'humanizer') {
         const humanizerResult = result as HumanizerResponse;
         if (humanizerResult && humanizerResult.humanizedText) {
           processedText = humanizerResult.humanizedText;
+        }
+      } else if (toolType as ToolType === 'article-rewriter') {
+        const articleResult = result as ArticleRewriterResponse;
+        if (!articleResult || !articleResult.rewrittenText) {
+          processedText = `
+            <div class="p-8 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl shadow-sm border border-blue-100">
+              <div class="flex items-center space-x-6">
+                <div class="bg-gradient-to-br from-blue-100 to-indigo-100 p-4 rounded-xl">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-xl font-semibold text-gray-800 mb-2">Ready to Transform Your Content</h3>
+                  <p class="text-gray-600">Enter your text and choose a style to rewrite your content with AI-powered suggestions.</p>
+                  <div class="mt-4 flex flex-wrap gap-2">
+                    <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">Readability</span>
+                    <span class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm">SEO</span>
+                    <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">Unique</span>
+                    <span class="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-sm">Formal</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        } else if (articleResult && articleResult.rewrittenText) {
+          let processedContent = articleResult.rewrittenText;
+          
+          // If we have changes, highlight them
+          if (articleResult.changes && articleResult.changes.length > 0) {
+            // Sort changes by length (longest first) to handle nested changes correctly
+            const sortedChanges = [...articleResult.changes].sort(
+              (a, b) => b.original.length - a.original.length
+            );
+
+            // Apply each change with appropriate color based on type
+            sortedChanges.forEach(change => {
+              const escapedOriginal = change.original.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+              const regex = new RegExp(`(${escapedOriginal})`, 'g');
+              
+              // Different colors for different types of changes
+              const colorClass = change.type === 'word' ? 'text-blue-600' :
+                                change.type === 'phrase' ? 'text-green-600' :
+                                'text-purple-600';
+              
+              processedContent = processedContent.replace(
+                regex,
+                `<span class="${colorClass} font-medium" title="Original: ${change.original}">${change.rewritten}</span>`
+              );
+            });
+          }
+
+          processedText = `
+            <div class="prose max-w-none p-4">
+              ${processedContent}
+            </div>
+          `;
         }
       }
       
@@ -334,12 +404,41 @@ const TextProcessor: React.FC<TextProcessorProps> = ({ toolType }) => {
     navigator.clipboard.writeText(textToCopy);
   };
 
+  // Show empty state for article rewriter when there's no input or output
+  const renderEmptyState = () => {
+    if (toolType === 'article-rewriter' && !outputText && !isProcessing) {
+      return (
+        <div className="p-8 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl shadow-sm border border-blue-100">
+          <div className="flex items-center space-x-6">
+            <div className="bg-gradient-to-br from-blue-100 to-indigo-100 p-4 rounded-xl">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} 
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">Ready to Transform Your Content</h3>
+              <p className="text-gray-600">Enter your text and choose a style to rewrite your content with AI-powered suggestions.</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">Readability</span>
+                <span className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm">SEO</span>
+                <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">Unique</span>
+                <span className="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-sm">Formal</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
-    <div className="flex flex-col lg:flex-row gap-6 w-full h-full">
+    <div className="flex flex-col lg:flex-row gap-6 w-full h-full overflow-hidden">
       {/* Left Column - Input Section */}
-      <div className="w-full lg:w-1/2 flex flex-col space-y-6 h-auto lg:h-screen overflow-y-auto lg:pr-3 pb-6">
+      <div className="w-full lg:w-1/2 flex flex-col space-y-6 h-auto lg:h-[calc(100vh-2rem)] overflow-y-auto lg:pr-3 pb-6">
         {/* Input Box */}
-        <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md flex-1 border-t-4 border-gray-200 sticky top-0">
+        <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md flex-1 border-t-4 border-gray-200">
           <div className="mb-4 flex justify-between items-center">
             <div>
               <h2 className="text-xl font-semibold text-black">Input</h2>
@@ -605,6 +704,45 @@ const TextProcessor: React.FC<TextProcessorProps> = ({ toolType }) => {
               ) : (
                 <div className="h-full flex flex-col items-center justify-center text-center p-6">
                   {/* Tool-specific empty states */}
+                  {toolType === 'article-rewriter' && (
+                    <div className="text-black">
+                      <div className="w-64 h-64 mx-auto mb-4">
+                        <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+                          <rect width="400" height="400" fill="#f0f9ff" rx="20" ry="20" />
+                          
+                          {/* Main document */}
+                          <rect x="80" y="60" width="160" height="240" fill="white" stroke="#3b82f6" strokeWidth="3" rx="10" ry="10" />
+                          
+                          {/* Text lines on main document */}
+                          <line x1="100" y1="100" x2="220" y2="100" stroke="#93c5fd" strokeWidth="3" strokeLinecap="round" />
+                          <line x1="100" y1="130" x2="220" y2="130" stroke="#93c5fd" strokeWidth="3" strokeLinecap="round" />
+                          <line x1="100" y1="160" x2="220" y2="160" stroke="#93c5fd" strokeWidth="3" strokeLinecap="round" />
+                          <line x1="100" y1="190" x2="180" y2="190" stroke="#93c5fd" strokeWidth="3" strokeLinecap="round" />
+                          
+                          {/* Transformed document */}
+                          <rect x="160" y="100" width="160" height="240" fill="white" stroke="#3b82f6" strokeWidth="3" rx="10" ry="10" transform="rotate(5)" />
+                          
+                          {/* Text lines on transformed document */}
+                          <line x1="180" y1="140" x2="300" y2="140" stroke="#93c5fd" strokeWidth="3" strokeLinecap="round" transform="rotate(5)" />
+                          <line x1="180" y1="170" x2="300" y2="170" stroke="#93c5fd" strokeWidth="3" strokeLinecap="round" transform="rotate(5)" />
+                          <line x1="180" y1="200" x2="300" y2="200" stroke="#93c5fd" strokeWidth="3" strokeLinecap="round" transform="rotate(5)" />
+                          <line x1="180" y1="230" x2="260" y2="230" stroke="#93c5fd" strokeWidth="3" strokeLinecap="round" transform="rotate(5)" />
+                          
+                          {/* Magic wand */}
+                          <path d="M320,80 L340,60 M330,70 L350,90" stroke="#f59e0b" strokeWidth="3" strokeLinecap="round" />
+                          <circle cx="345" cy="85" r="3" fill="#f59e0b" />
+                          <circle cx="325" cy="65" r="3" fill="#f59e0b" />
+                          
+                          {/* Sparkles */}
+                          <circle cx="310" cy="100" r="4" fill="#fde68a" />
+                          <circle cx="350" cy="120" r="4" fill="#fde68a" />
+                          <circle cx="330" cy="140" r="4" fill="#fde68a" />
+                        </svg>
+                      </div>
+                      <h3 className="text-xl font-semibold mb-2">Article Rewriter</h3>
+                      <p className="text-gray-600 mb-6 max-w-sm">Transform your content with AI-powered suggestions. Choose from multiple styles to create engaging, professional content.</p>
+                    </div>
+                  )}
                   {toolType === 'grammar-checker' && (
                     <div className="text-black">
                       <div className="w-64 h-64 mx-auto mb-4">

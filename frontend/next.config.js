@@ -35,7 +35,7 @@ const nextConfig = {
               style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
               img-src 'self' data: blob:;
               font-src 'self' data: https://fonts.gstatic.com;
-              connect-src 'self' https://*.stripe.com https://*.supabase.co https://*.supabase.in https://www.facebook.com https://backend-yd4nj.ondigitalocean.app;
+              connect-src 'self' http://localhost:* https://*.stripe.com https://*.supabase.co https://*.supabase.in https://www.facebook.com https://backend-yd4nj.ondigitalocean.app;
               frame-src 'self';
             `.replace(/\s+/g, ' ').trim(),
           },

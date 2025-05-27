@@ -11,7 +11,8 @@ import {
   SummarizerResponse,
   TranslatorResponse,
   ToneConverterResponse,
-  HumanizerResponse
+  HumanizerResponse,
+  ArticleRewriterResponse
 } from '@/types';
 
 import { API_URL } from '@/app/env';
@@ -22,7 +23,8 @@ import {
   getFallbackSummarizerResponse,
   getFallbackTranslatorResponse,
   getFallbackToneConverterResponse,
-  getFallbackHumanizerResponse
+  getFallbackHumanizerResponse,
+  getFallbackArticleRewriterResponse
 } from './fallbacks';
 
 /**
@@ -206,13 +208,12 @@ export async function convertTone(text: string, tone: ToneConverterMode): Promis
  * Humanizer API
  */
 export async function humanizeText(text: string, mode: HumanizerMode = 'natural'): Promise<HumanizerResponse | null> {
-  try {
-    return await apiRequest<HumanizerResponse>('/tools/humanizer', { text, mode });
-  } catch (error) {
-    console.warn('Humanizer API error, using fallback:', error);
-    // Always return fallback response for any error
-    return getFallbackHumanizerResponse(text);
-  }
+  return apiRequest<HumanizerResponse>('/tools/humanizer', { text, mode });
+}
+
+// Article Rewriter API
+export async function rewriteArticle(text: string): Promise<ArticleRewriterResponse | null> {
+  return apiRequest<ArticleRewriterResponse>('/tools/article-rewriter', { text });
 }
 
 /**
@@ -239,6 +240,8 @@ export async function processText(
       return convertTone(text, mode as ToneConverterMode);
     case 'humanizer':
       return humanizeText(text, mode as HumanizerMode);
+    case 'article-rewriter':
+      return rewriteArticle(text);
     default:
       throw new Error('Invalid tool type');
   }
