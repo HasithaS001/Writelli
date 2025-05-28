@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+Allow: /blog/
+Allow: /blog/*
+Allow: /about
+Allow: /contact
+Disallow: /api/
+Disallow: /_next/
+Disallow: /auth/
+Disallow: /signin
+Disallow: /signup
+Disallow: /profile
+Disallow: /blog/draft/
+Disallow: /blog/preview/
+
+# Sitemaps
+Sitemap: https://writelli.com/sitemap.xml
