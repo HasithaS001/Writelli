@@ -532,52 +532,66 @@ router.post('/humanizer', checkRateLimit, async (req, res) => {
     let prompt;
     switch (mode) {
       case 'natural':
-        prompt = `You are a highly skilled human writer tasked with rewriting a paragraph to feel unmistakably written by a thoughtful, expressive human being — not an AI. Start your response in a unique way - avoid starting with common phrases like 'ok so', 'well', or 'you know'. Each response should begin differently. Rewrite the text using a natural writing rhythm that reflects how people genuinely communicate in writing. This includes:
+        prompt = `You are a highly skilled human writer tasked with rewriting a paragraph to feel unmistakably written by a thoughtful, expressive human being — not an AI. Rewrite the text using a natural writing rhythm that reflects how people genuinely communicate in formal writing. This includes:
 
-Varying sentence lengths and structures naturally (some short, some long, some fragmented).
+1. Varying sentence lengths and structures naturally (some short, some long, some complex).
 
-Using conversational transitions, casual interjections, and idiomatic language (e.g., “to be honest,” “let’s face it,” “oddly enough”).
+2. Using proper transitions and idiomatic language that maintains a professional tone.
 
-Introducing light redundancy, filler words, and slightly offbeat phrasing that adds a human fingerprint.
+3. Introducing subtle variations in phrasing that adds a human fingerprint without using casual spoken language elements like 'ah', 'so', 'well', etc.
 
-Avoiding mechanical or overly polished grammar — allow for natural pauses, mild imperfection, and personal nuance.
+4. Avoiding mechanical or overly polished grammar — allow for natural flow and personal nuance while maintaining proper writing style.
 
-Embedding small reflections, opinions, or emotional undertones where appropriate.
+5. Embedding thoughtful reflections or perspectives where appropriate.
 
-Making it sound like it was written spontaneously by a human — not optimized for clarity or perfection, but for authenticity and expression.
+6. Making it sound like it was written thoughtfully by a human — optimized for both clarity and authentic expression.
 
 The final result must:
 
-Be undetectable by AI detectors (aim for a 0% AI score).
+- Be undetectable by AI detectors (aim for a 0% AI score).
 
-Sound like it was written by a human with genuine thoughts, a distinct voice, and a natural flow.
+- Sound like it was written by a human with genuine thoughts, a distinct voice, and a natural flow.
 
-Use organic transitions, like how someone would write in an email, blog post, or opinion piece.
+- Use organic transitions, like how someone would write in a professional blog post, article, or opinion piece.
 
-Do not make it sound academic, robotic, or over-structured.
+- Maintain proper writing style without casual spoken language elements or filler words.
 
 Text to rewrite: "${plainText}"`;
         break;
       case 'bypass':
-        prompt = `You are a human writer with a unique, natural voice. Begin your response in an engaging and unexpected way - never start with the same phrases or patterns. Each response should have its own unique opening. Rewrite the following text so it reads with the rhythm, nuance, and unpredictability of real human writing. Add subtle imperfections, informal phrasing, natural transitions, emotional tone, and contextual reflections. Vary sentence lengths, occasionally start sentences with conjunctions, use contractions, idioms, rhetorical questions, and soft interjections. Introduce mild hesitations, digressions, or personal commentary if appropriate — as if the thoughts are unfolding in real time. Avoid robotic perfection or patterns common in AI-generated content. Make the paragraph sound like something written by someone typing casually but thoughtfully — maybe while sipping coffee or telling a story to a friend. Your goal is to make it undetectable by any AI detector, indistinguishable from something written by a real human with a natural voice.The goal is to fully humanize the paragraph to the point where AI detection tools (like GPTZero, Turnitin, Originality.ai) will classify it as 100% human-written. The final result should feel informal but polished — like something written by a thoughtful blogger, student, or online writer. Make it sound alive.
+        prompt = `You are a human writer with a unique, natural voice. Rewrite the following text so it reads with the rhythm, nuance, and unpredictability of real human writing. Add subtle variations in phrasing, natural transitions, thoughtful tone, and contextual reflections. Vary sentence lengths, occasionally start sentences with conjunctions, use contractions, idioms, and rhetorical questions where appropriate. Incorporate thoughtful commentary that enhances the content — as if carefully crafting a well-considered piece. Avoid robotic perfection or patterns common in AI-generated content while maintaining proper writing style throughout. 
+
+The goal is to fully humanize the paragraph to the point where AI detection tools (like GPTZero, Turnitin, Originality.ai) will classify it as 100% human-written. The final result should feel polished and professional — like something written by a thoughtful writer or content creator. Do not use casual spoken language elements like 'ah', 'so', 'well', etc.
 
 Text to rewrite: "${plainText}"`;
         break;
       case 'emotional':
-        prompt = `"Start with a fresh, emotionally resonant opening - avoid any standard or repetitive beginnings. Make each response start uniquely. Rewrite the following paragraph with deep emotional nuance and a distinct human voice. Infuse it with natural rhythm, varied sentence lengths, and an organic flow of thoughts — as if someone is expressing a genuine experience, memory, or personal reflection. The tone should be rich with feeling, vulnerability, and authenticity. Use expressive language, mild imperfection, and occasional hesitations, like someone truly thinking aloud or journaling from the heart. Avoid robotic tone, perfect structure, or generic phrasing. You may include metaphors, sensory descriptions, or relatable side-notes if it adds realism. The goal is to craft a paragraph that feels completely human-written — emotionally resonant, stylistically natural, and undetectable by AI detectors. Write as if this is a piece of your own story, not an assignment."${plainText}"`;
+        prompt = `Rewrite the following paragraph with deep emotional nuance and a distinct human voice. Infuse it with natural rhythm, varied sentence lengths, and an organic flow of thoughts that conveys genuine experience or reflection. The tone should be rich with feeling, vulnerability, and authenticity while maintaining proper writing style. Use expressive language, thoughtful phrasing, and evocative descriptions that resonate emotionally. 
+
+Avoid robotic tone, perfect structure, or generic phrasing. Include metaphors, sensory descriptions, or meaningful reflections that add emotional depth. The goal is to craft a paragraph that feels completely human-written — emotionally resonant, stylistically refined, and undetectable by AI detectors. 
+
+Do not use casual spoken language elements like 'ah', 'so', 'well', etc. Maintain a proper writing style throughout while still conveying authentic emotion.
+
+Text to rewrite: "${plainText}"`;
         break;
       case 'conversational':
-        prompt = `"Begin with a fresh, conversational opener - as if jumping into the middle of a natural discussion. Avoid standard starts and make each response begin differently. Take the following paragraph and completely rewrite it in a natural, conversational, and human tone, as if someone is speaking directly to a friend or writing a casual blog post. Add realistic imperfections like mild hesitations, contractions, varied sentence lengths, and the occasional filler word (like ‘honestly’, ‘you know’, ‘kind of’, ‘actually’, etc.).
+        prompt = `Rewrite the following paragraph in a natural, conversational, and human tone that maintains proper writing style. The text should be engaging and approachable while still being polished and professional. Use contractions, varied sentence lengths, and natural transitions to create a friendly yet refined tone.
 
-Make it sound fluid, expressive, and genuinely human — like someone is thinking aloud or telling a story. Include small emotional cues, personal reflection, and natural rhythm. Avoid robotic grammar or overly formal sentence structures. You can slightly rephrase or reorder ideas if that helps it sound more organic.
+Make it sound fluid, expressive, and genuinely human while avoiding casual spoken language elements like 'ah', 'so', 'well', etc. Include thoughtful perspectives, engaging explanations, and natural rhythm. Balance conversational approachability with professional writing standards.
 
-Use your best judgment to make it feel 100% written by a real person — not AI. The end result should pass any AI detection tool by sounding like natural, thoughtful, spoken-language writing."${plainText}"`;
+Use your best judgment to make it feel 100% written by a real person — not AI. The end result should pass any AI detection tool by sounding like natural, thoughtful writing that maintains proper writing style throughout.
+
+Text to rewrite: "${plainText}"`;
         break;
       case 'genz':
-        prompt = `Start with a totally random Gen Z vibe - different each time, super casual and unique. Then rewrite the following text in Gen Z style with appropriate slang and tone: "${plainText}"`;
+        prompt = `Rewrite the following text in a consistent, professional Gen Z style. The text should incorporate modern Gen Z terminology and expressions while maintaining proper writing style and grammar. Do not use multiple options or variations - provide only ONE rewritten version. Avoid casual spoken language elements like 'ah', 'so', 'well', etc., but do include appropriate Gen Z terminology that would be used in written communication. The tone should be fresh and contemporary while still being polished and coherent.
+
+Text to rewrite: "${plainText}"`;
         break;
       default:
-        prompt = `Start with a fresh, unique opening sentence, then rewrite the following text to sound more human: "${plainText}"`;
+        prompt = `Rewrite the following text to sound more human while maintaining proper writing style. Use varied sentence structures, natural transitions, and thoughtful phrasing to create content that feels written by a human rather than AI. Avoid casual spoken language elements like 'ah', 'so', 'well', etc. The result should be polished, professional, and undetectable by AI content detectors.
+
+Text to rewrite: "${plainText}"`;
     }
     
     let result = await generateContent(prompt);
@@ -594,213 +608,6 @@ Use your best judgment to make it feel 100% written by a real person — not AI.
   }
 });
 
-// Article Rewriter
-router.post('/article-rewriter', checkRateLimit, async (req, res) => {
-  try {
-    const { text, mode, keywords } = req.body;
-    
-    if (!text) {
-      return res.status(400).json({ error: 'No text provided' });
-    }
-
-    const plainText = stripHtml(text);
-    let prompt = '';
-
-    switch (mode) {
-      case 'readability':
-        prompt = `Rewrite the following article to improve its readability and engagement. Make it clearer, more concise, and easier to understand while maintaining the original meaning. Use simpler language, shorter sentences where appropriate, and better paragraph structure. Ensure the flow is natural and the content is well-organized.
-
-Original article:
-"${plainText}"`;
-        break;
-
-      case 'seo':
-        prompt = `Rewrite the following article to optimize it for search engines while maintaining readability and natural flow. Integrate these target keywords naturally: ${keywords?.join(', ')}. Improve headings, use varied sentence structures, and maintain keyword density without keyword stuffing. Ensure the content remains valuable to human readers.
-
-Original article:
-"${plainText}"`;
-        break;
-
-      case 'unique':
-        prompt = `Rewrite the following article to create a unique version while preserving the core message and meaning. Change the sentence structures, use synonyms, and reorganize paragraphs where appropriate. The goal is to make it pass AI detection and plagiarism checks while maintaining quality and accuracy.
-
-Original article:
-"${plainText}"`;
-        break;
-
-      case 'formal':
-        prompt = `Rewrite the following article in a formal, professional tone. Use sophisticated vocabulary where appropriate, maintain a scholarly approach, and ensure proper academic style. Remove casual language and colloquialisms while keeping the content clear and authoritative.
-
-Original article:
-"${plainText}"`;
-        break;
-
-      case 'friendly':
-        prompt = `Rewrite the following article in a friendly, conversational tone. Make it more approachable and engaging while maintaining professionalism. Use a warm, personal voice, include relevant examples or analogies, and make complex concepts more relatable.
-
-Original article:
-"${plainText}"`;
-        break;
-
-      case 'persuasive':
-        prompt = `Rewrite the following article to be more persuasive and compelling. Strengthen the arguments, enhance the call-to-action, and use persuasive techniques like social proof, authority, and emotional appeal where appropriate. Make the benefits clear and motivate the reader to take action.
-
-Original article:
-"${plainText}"`;
-        break;
-
-      default:
-        return res.status(400).json({ error: 'Invalid mode specified' });
-    }
-
-    console.log('Sending article rewriter request to Gemini API');
-    const result = await generateContent(prompt);
-    console.log('Received response from Gemini API');
-
-    // Calculate scores based on the mode
-    let response = {
-      rewrittenText: result
-    };
-
-    if (mode === 'readability') {
-      // Simple readability score based on sentence length and word complexity
-      const sentences = result.split(/[.!?]+/);
-      const avgWordsPerSentence = sentences.reduce((acc, sent) => 
-        acc + sent.trim().split(/\s+/).length, 0) / sentences.length;
-      response.readabilityScore = Math.max(0, Math.min(100, 100 - (avgWordsPerSentence - 15) * 5));
-    }
-
-    if (mode === 'seo' && keywords) {
-      // Calculate SEO score based on keyword presence and density
-      const keywordRegexes = keywords.map(kw => new RegExp(kw, 'gi'));
-      const keywordCounts = keywordRegexes.map(regex => 
-        (result.match(regex) || []).length);
-      const totalWords = result.split(/\s+/).length;
-      const keywordDensity = keywordCounts.reduce((a, b) => a + b, 0) / totalWords;
-      response.seoScore = Math.max(0, Math.min(100, keywordDensity * 1000));
-      response.keywords = keywords;
-    }
-
-    if (mode === 'unique') {
-      // Simple uniqueness score (this should be replaced with a more sophisticated algorithm)
-      const commonPhrases = plainText.match(/\b\w+\s+\w+\s+\w+\b/g) || [];
-      const uniquePhrases = new Set(commonPhrases);
-      response.uniquenessScore = Math.min(100, (uniquePhrases.size / commonPhrases.length) * 100);
-    }
-
-    res.json(response);
-
-  } catch (error) {
-    console.error('Error in article rewriter:', error);
-    res.status(500).json({ error: 'Failed to process article' });
-  }
-});
-
-// Article Rewriter
-router.post('/article-rewriter', checkRateLimit, async (req, res) => {
-  try {
-    const { text, mode, keywords } = req.body;
-    
-    if (!text) {
-      return res.status(400).json({ error: 'No text provided' });
-    }
-
-    const plainText = stripHtml(text);
-    let prompt = '';
-
-    switch (mode) {
-      case 'readability':
-        prompt = `Rewrite the following article to improve its readability and engagement. Make it clearer, more concise, and easier to understand while maintaining the key information and meaning. Remove any unnecessary complexity, passive voice, or awkward phrasing. The rewritten version should flow naturally and be accessible to a general audience.
-
-Article to rewrite:
-"${plainText}"`;
-        break;
-
-      case 'seo':
-        prompt = `Rewrite the following article to optimize it for search engines while maintaining readability and natural flow. Incorporate these target keywords naturally: ${keywords.join(', ')}. Ensure proper keyword density without keyword stuffing. Use semantic variations and LSI keywords where appropriate. Structure the content with clear headings and maintain engaging, valuable content for readers.
-
-Article to rewrite:
-"${plainText}"`;
-        break;
-
-      case 'unique':
-        prompt = `Rewrite the following article to create a completely unique version while preserving the core meaning and key information. Use different sentence structures, synonyms, and rearrange paragraphs where appropriate. The output should pass AI detection tools and maintain a natural, human-like writing style.
-
-Article to rewrite:
-"${plainText}"`;
-        break;
-
-      case 'formal':
-        prompt = `Rewrite the following article in a formal, professional tone. Use appropriate academic or business language, maintain objectivity, and ensure proper structure. Remove casual language and colloquialisms while keeping the content engaging and authoritative.
-
-Article to rewrite:
-"${plainText}"`;
-        break;
-
-      case 'friendly':
-        prompt = `Rewrite the following article in a friendly, conversational tone. Make it more approachable and engaging while maintaining professionalism. Use a warm, personal voice, include relevant examples or analogies, and make complex concepts more relatable.
-
-Article to rewrite:
-"${plainText}"`;
-        break;
-
-      case 'persuasive':
-        prompt = `Rewrite the following article to be more persuasive and compelling. Strengthen arguments, add persuasive elements, and enhance the call-to-action. Use rhetorical devices, emotional appeals, and logical progression while maintaining credibility and authenticity.
-
-Article to rewrite:
-"${plainText}"`;
-        break;
-
-      default:
-        return res.status(400).json({ error: 'Invalid mode specified' });
-    }
-
-    console.log('Sending article rewrite request to Gemini API');
-    const rewrittenText = await generateContent(prompt);
-    console.log('Received response from Gemini API');
-
-    // Calculate scores based on mode and content analysis
-    let readabilityScore, uniquenessScore, seoScore;
-    
-    if (mode === 'readability') {
-      // Simple readability score based on sentence length and complexity
-      const sentences = rewrittenText.split(/[.!?]+/);
-      const avgWordsPerSentence = sentences.reduce((acc, s) => acc + s.split(/\s+/).length, 0) / sentences.length;
-      readabilityScore = Math.min(100, Math.max(80, 100 - (avgWordsPerSentence - 15) * 2));
-    }
-    
-    if (mode === 'unique') {
-      // Uniqueness score based on text variation from original
-      const similarity = require('string-similarity');
-      const similarityScore = similarity.compareTwoStrings(plainText, rewrittenText);
-      uniquenessScore = Math.min(100, Math.max(80, (1 - similarityScore) * 100));
-    }
-    
-    if (mode === 'seo' && keywords) {
-      // SEO score based on keyword presence and density
-      const keywordMatches = keywords.map(kw => {
-        const regex = new RegExp(kw, 'gi');
-        return (rewrittenText.match(regex) || []).length;
-      });
-      const totalMatches = keywordMatches.reduce((a, b) => a + b, 0);
-      const wordCount = rewrittenText.split(/\s+/).length;
-      const density = (totalMatches / wordCount) * 100;
-      seoScore = Math.min(100, Math.max(80, 90 - Math.abs(2 - density) * 5));
-    }
-
-    // Return the response
-    res.json({
-      rewrittenText,
-      readabilityScore,
-      uniquenessScore,
-      seoScore,
-      keywords: mode === 'seo' ? keywords : undefined
-    });
-
-  } catch (error) {
-    console.error('Error in article rewriter:', error);
-    res.status(500).json({ error: error.message || 'An error occurred while rewriting the article' });
-  }
-});
+// Article Rewriter endpoint has been removed
 
 module.exports = router;

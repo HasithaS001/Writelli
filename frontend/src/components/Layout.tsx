@@ -36,7 +36,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [subscription, setSubscription] = useState<SubscriptionData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const pathname = usePathname();
-  const currentTool = pathname.split('/')[1] || 'grammar-checker';
+  const currentTool = pathname ? pathname.split('/')[1] || 'grammar-checker' : 'grammar-checker';
   const { user } = useAuth();
   
   // Fetch user subscription data
@@ -91,8 +91,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         return <Icons.ToneConverter isActive={isActive} />;
       case 'humanizer':
         return <Icons.Humanizer isActive={isActive} />;
-      case 'article-rewriter':
-        return <Icons.ArticleRewriter isActive={isActive} />;
       default:
         return <Icons.GrammarChecker isActive={isActive} />;
     }
@@ -115,8 +113,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         return 'C';
       case 'humanizer':
         return 'H';
-      case 'article-rewriter':
-        return 'A';
       default:
         return 'G';
     }

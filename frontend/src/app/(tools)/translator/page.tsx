@@ -1,7 +1,12 @@
 "use client";
 
 import TextProcessor from '@/components/TextProcessor';
+import ToolPageWrapper from '@/components/ToolPageWrapper';
 
 export default function TranslatorPage() {
-  return <TextProcessor toolType="translator" />;
+  return (
+    <ToolPageWrapper toolType="translator">
+      <TextProcessor toolType="translator" />
+    </ToolPageWrapper>
+  );
 }
