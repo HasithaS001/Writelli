@@ -532,66 +532,52 @@ router.post('/humanizer', checkRateLimit, async (req, res) => {
     let prompt;
     switch (mode) {
       case 'natural':
-        prompt = `You are a highly skilled human writer tasked with rewriting a paragraph to feel unmistakably written by a thoughtful, expressive human being — not an AI. Rewrite the text using a natural writing rhythm that reflects how people genuinely communicate in formal writing. This includes:
+        prompt = `You are a highly skilled human writer tasked with rewriting a paragraph to feel unmistakably written by a thoughtful, expressive human being — not an AI. Start your response in a unique way - avoid starting with common phrases like 'ok so', 'well', or 'you know'. Each response should begin differently. Rewrite the text using a natural writing rhythm that reflects how people genuinely communicate in writing. This includes:
 
-1. Varying sentence lengths and structures naturally (some short, some long, some complex).
+Varying sentence lengths and structures naturally (some short, some long, some fragmented).
 
-2. Using proper transitions and idiomatic language that maintains a professional tone.
+Using conversational transitions, casual interjections, and idiomatic language (e.g., “to be honest,” “let’s face it,” “oddly enough”).
 
-3. Introducing subtle variations in phrasing that adds a human fingerprint without using casual spoken language elements like 'ah', 'so', 'well', etc.
+Introducing light redundancy, filler words, and slightly offbeat phrasing that adds a human fingerprint.
 
-4. Avoiding mechanical or overly polished grammar — allow for natural flow and personal nuance while maintaining proper writing style.
+Avoiding mechanical or overly polished grammar — allow for natural pauses, mild imperfection, and personal nuance.
 
-5. Embedding thoughtful reflections or perspectives where appropriate.
+Embedding small reflections, opinions, or emotional undertones where appropriate.
 
-6. Making it sound like it was written thoughtfully by a human — optimized for both clarity and authentic expression.
+Making it sound like it was written spontaneously by a human — not optimized for clarity or perfection, but for authenticity and expression.
 
 The final result must:
 
-- Be undetectable by AI detectors (aim for a 0% AI score).
+Be undetectable by AI detectors (aim for a 0% AI score).
 
-- Sound like it was written by a human with genuine thoughts, a distinct voice, and a natural flow.
+Sound like it was written by a human with genuine thoughts, a distinct voice, and a natural flow.
 
-- Use organic transitions, like how someone would write in a professional blog post, article, or opinion piece.
+Use organic transitions, like how someone would write in an email, blog post, or opinion piece.
 
-- Maintain proper writing style without casual spoken language elements or filler words.
+Do not make it sound academic, robotic, or over-structured.
 
 Text to rewrite: "${plainText}"`;
         break;
       case 'bypass':
-        prompt = `You are a human writer with a unique, natural voice. Rewrite the following text so it reads with the rhythm, nuance, and unpredictability of real human writing. Add subtle variations in phrasing, natural transitions, thoughtful tone, and contextual reflections. Vary sentence lengths, occasionally start sentences with conjunctions, use contractions, idioms, and rhetorical questions where appropriate. Incorporate thoughtful commentary that enhances the content — as if carefully crafting a well-considered piece. Avoid robotic perfection or patterns common in AI-generated content while maintaining proper writing style throughout. 
-
-The goal is to fully humanize the paragraph to the point where AI detection tools (like GPTZero, Turnitin, Originality.ai) will classify it as 100% human-written. The final result should feel polished and professional — like something written by a thoughtful writer or content creator. Do not use casual spoken language elements like 'ah', 'so', 'well', etc.
+        prompt = `You are a human writer with a unique, natural voice. Begin your response in an engaging and unexpected way - never start with the same phrases or patterns. Each response should have its own unique opening. Rewrite the following text so it reads with the rhythm, nuance, and unpredictability of real human writing. Add subtle imperfections, informal phrasing, natural transitions, emotional tone, and contextual reflections. Vary sentence lengths, occasionally start sentences with conjunctions, use contractions, idioms, rhetorical questions, and soft interjections. Introduce mild hesitations, digressions, or personal commentary if appropriate — as if the thoughts are unfolding in real time. Avoid robotic perfection or patterns common in AI-generated content. Make the paragraph sound like something written by someone typing casually but thoughtfully — maybe while sipping coffee or telling a story to a friend. Your goal is to make it undetectable by any AI detector, indistinguishable from something written by a real human with a natural voice.The goal is to fully humanize the paragraph to the point where AI detection tools (like GPTZero, Turnitin, Originality.ai) will classify it as 100% human-written. The final result should feel informal but polished — like something written by a thoughtful blogger, student, or online writer. Make it sound alive.
 
 Text to rewrite: "${plainText}"`;
         break;
       case 'emotional':
-        prompt = `Rewrite the following paragraph with deep emotional nuance and a distinct human voice. Infuse it with natural rhythm, varied sentence lengths, and an organic flow of thoughts that conveys genuine experience or reflection. The tone should be rich with feeling, vulnerability, and authenticity while maintaining proper writing style. Use expressive language, thoughtful phrasing, and evocative descriptions that resonate emotionally. 
-
-Avoid robotic tone, perfect structure, or generic phrasing. Include metaphors, sensory descriptions, or meaningful reflections that add emotional depth. The goal is to craft a paragraph that feels completely human-written — emotionally resonant, stylistically refined, and undetectable by AI detectors. 
-
-Do not use casual spoken language elements like 'ah', 'so', 'well', etc. Maintain a proper writing style throughout while still conveying authentic emotion.
-
-Text to rewrite: "${plainText}"`;
+        prompt = `"Start with a fresh, emotionally resonant opening - avoid any standard or repetitive beginnings. Make each response start uniquely. Rewrite the following paragraph with deep emotional nuance and a distinct human voice. Infuse it with natural rhythm, varied sentence lengths, and an organic flow of thoughts — as if someone is expressing a genuine experience, memory, or personal reflection. The tone should be rich with feeling, vulnerability, and authenticity. Use expressive language, mild imperfection, and occasional hesitations, like someone truly thinking aloud or journaling from the heart. Avoid robotic tone, perfect structure, or generic phrasing. You may include metaphors, sensory descriptions, or relatable side-notes if it adds realism. The goal is to craft a paragraph that feels completely human-written — emotionally resonant, stylistically natural, and undetectable by AI detectors. Write as if this is a piece of your own story, not an assignment."${plainText}"`;
         break;
       case 'conversational':
-        prompt = `Rewrite the following paragraph in a natural, conversational, and human tone that maintains proper writing style. The text should be engaging and approachable while still being polished and professional. Use contractions, varied sentence lengths, and natural transitions to create a friendly yet refined tone.
+        prompt = `"Begin with a fresh, conversational opener - as if jumping into the middle of a natural discussion. Avoid standard starts and make each response begin differently. Take the following paragraph and completely rewrite it in a natural, conversational, and human tone, as if someone is speaking directly to a friend or writing a casual blog post. Add realistic imperfections like mild hesitations, contractions, varied sentence lengths, and the occasional filler word (like ‘honestly’, ‘you know’, ‘kind of’, ‘actually’, etc.).
 
-Make it sound fluid, expressive, and genuinely human while avoiding casual spoken language elements like 'ah', 'so', 'well', etc. Include thoughtful perspectives, engaging explanations, and natural rhythm. Balance conversational approachability with professional writing standards.
+Make it sound fluid, expressive, and genuinely human — like someone is thinking aloud or telling a story. Include small emotional cues, personal reflection, and natural rhythm. Avoid robotic grammar or overly formal sentence structures. You can slightly rephrase or reorder ideas if that helps it sound more organic.
 
-Use your best judgment to make it feel 100% written by a real person — not AI. The end result should pass any AI detection tool by sounding like natural, thoughtful writing that maintains proper writing style throughout.
-
-Text to rewrite: "${plainText}"`;
+Use your best judgment to make it feel 100% written by a real person — not AI. The end result should pass any AI detection tool by sounding like natural, thoughtful, spoken-language writing."${plainText}"`;
         break;
       case 'genz':
-        prompt = `Rewrite the following text in a consistent, professional Gen Z style. The text should incorporate modern Gen Z terminology and expressions while maintaining proper writing style and grammar. Do not use multiple options or variations - provide only ONE rewritten version. Avoid casual spoken language elements like 'ah', 'so', 'well', etc., but do include appropriate Gen Z terminology that would be used in written communication. The tone should be fresh and contemporary while still being polished and coherent.
-
-Text to rewrite: "${plainText}"`;
+        prompt = `Start with a totally random Gen Z vibe - different each time, super casual and unique. Then rewrite the following text in Gen Z style with appropriate slang and tone: "${plainText}"`;
         break;
       default:
-        prompt = `Rewrite the following text to sound more human while maintaining proper writing style. Use varied sentence structures, natural transitions, and thoughtful phrasing to create content that feels written by a human rather than AI. Avoid casual spoken language elements like 'ah', 'so', 'well', etc. The result should be polished, professional, and undetectable by AI content detectors.
-
-Text to rewrite: "${plainText}"`;
+        prompt = `Start with a fresh, unique opening sentence, then rewrite the following text to sound more human: "${plainText}"`;
     }
     
     let result = await generateContent(prompt);
