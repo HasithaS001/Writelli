@@ -1,4 +1,13 @@
 const webpack = require('webpack');
+const path = require('path');
+const fs = require('fs');
+
+// Get all SEO HTML files to create rewrites
+const seoDir = path.join(__dirname, 'public/seo');
+const seoFiles = fs.existsSync(seoDir) ? 
+  fs.readdirSync(seoDir)
+    .filter(file => file.endsWith('.html'))
+    .map(file => file.replace('.html', '')) : [];
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -75,11 +84,21 @@ const nextConfig = {
         })
       );
     }
+    config.plugins.push(
+      new webpack.DefinePlugin({
+        'process.env.NEXT_PUBLIC_APP_VERSION': JSON.stringify(process.env.npm_package_version),
+      })
+    );
     return config;
   },
 
   async rewrites() {
     return [
+      // Serve each SEO HTML file from its clean URL path
+      ...seoFiles.map(file => ({
+        source: `/${file}`,
+        destination: `/seo/${file}.html`,
+      })),
       {
         source: '/api/:path*',
         destination: `${process.env.NEXT_PUBLIC_API_URL}/:path*`,
