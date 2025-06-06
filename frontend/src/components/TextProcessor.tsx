@@ -1,4 +1,9 @@
 import React, { useState, useEffect } from 'react';
+declare global {
+  interface Window {
+    handleGrammarCorrectionClick?: (element: HTMLElement) => void;
+  }
+}
 import { useRouter } from 'next/navigation';
 import Button from '@/components/ui/Button';
 import Spinner from '@/components/ui/Spinner';
@@ -114,7 +119,9 @@ const TextProcessor: React.FC<TextProcessorProps> = ({ toolType }): React.ReactE
   const [revisedExample, setRevisedExample] = useState<string | null>(null);
   const [typingComplete, setTypingComplete] = useState(false);
   const [showCopyButton, setShowCopyButton] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [wordCount, setWordCount] = useState<number>(0);
+  const [apiResult, setApiResult] = useState<any>(null);
 
   // Update word count when input text changes
   useEffect(() => {
@@ -125,11 +132,10 @@ const TextProcessor: React.FC<TextProcessorProps> = ({ toolType }): React.ReactE
 
   // Set initial mode based on tool type
   useEffect(() => {
-    const availableModes = getToolModes(toolType);
-    if (availableModes.length > 0) {
-      // Set initial mode - try to find a non-pro mode first
-      const freeMode = availableModes.find(m => !isProOnlyMode(toolType, m));
-      setMode(freeMode || availableModes[0]);
+    // Set the default mode for the tool
+    const modes = getToolModes(toolType);
+    if (modes.length > 0) {
+      setMode(modes[0]);
     }
     
     // Reset states when tool type changes
@@ -160,6 +166,7 @@ const TextProcessor: React.FC<TextProcessorProps> = ({ toolType }): React.ReactE
 
     try {
       const result = await processText(toolType, inputText, mode, language);
+      setApiResult(result); // Store the API result for later use
       
       // Function to convert Markdown-style bold (**text**) to HTML bold tags (<b>text</b>)
       const convertMarkdownBoldToHtml = (text: string): string => {
@@ -190,17 +197,20 @@ const TextProcessor: React.FC<TextProcessorProps> = ({ toolType }): React.ReactE
         if (grammarResult && grammarResult.correctedText) {
           let coloredText = grammarResult.correctedText;
           
-          // Apply corrections with color coding and straight underline
+          // Process the original text instead of the corrected text
+          let originalText = grammarResult.originalText;
+          
+          // Apply corrections with color coding and hover functionality
           if (grammarResult.corrections && grammarResult.corrections.length > 0) {
             // Sort corrections by length (longest first) to handle nested corrections
             const sortedCorrections = [...grammarResult.corrections].sort(
-              (a, b) => b.corrected.length - a.corrected.length
+              (a, b) => b.original.length - a.original.length
             );
 
-            sortedCorrections.forEach(correction => {
+            sortedCorrections.forEach((correction, index) => {
               if (correction.original !== correction.corrected) {
-                const escapedCorrected = correction.corrected.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                const regex = new RegExp(`(${escapedCorrected})`, 'g');
+                const escapedOriginal = correction.original.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const regex = new RegExp(`(${escapedOriginal})`, 'g');
                 
                 // Use different colors for different types of corrections
                 const colorClass = correction.color === 'red' ? 'text-red-500' :
@@ -208,13 +218,43 @@ const TextProcessor: React.FC<TextProcessorProps> = ({ toolType }): React.ReactE
                                   correction.color === 'green' ? 'text-green-500' :
                                   'text-red-500'; // Default to red for errors
                 
-                coloredText = coloredText.replace(
+                // Determine the error type based on the color
+                let errorType = '';
+                if (correction.color === 'red') {
+                  errorType = 'Grammar Error';
+                } else if (correction.color === 'blue') {
+                  errorType = 'Spelling Error';
+                } else if (correction.color === 'green') {
+                  errorType = 'Punctuation Error';
+                } else {
+                  errorType = 'Writing Error';
+                }
+                
+                // Create an element with modern hover tooltip showing error type and correction
+                originalText = originalText.replace(
                   regex,
-                  `<span class="${colorClass} border-b border-current" title="Original: ${correction.original}">${correction.corrected}</span>`
+                  `<span 
+                    class="${colorClass} border-b-2 border-dashed border-current relative group cursor-pointer grammar-correction"
+                    data-original="${correction.original}"
+                    data-corrected="${correction.corrected}"
+                    data-error-type="${errorType}"
+                    onclick="window.handleGrammarCorrectionClick && window.handleGrammarCorrectionClick(this)"
+                  >
+                    ${correction.original}
+                    <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 min-w-[200px] bg-white shadow-lg rounded-md py-2 px-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 border border-gray-200">
+                      <div class="flex flex-col gap-1">
+                        <div class="text-xs font-semibold text-gray-500">${errorType}</div>
+                        <div class="font-medium text-sm text-gray-800">Suggestion: <span class="text-green-600">${correction.corrected}</span></div>
+                        <div class="mt-1 text-xs text-gray-500">Click to replace</div>
+                      </div>
+                    </span>
+                  </span>`
                 );
               }
             });
-            processedText = coloredText;
+            
+            // Use the processed original text with underlined mistakes
+            processedText = originalText;
           } else {
             processedText = `
               <div class="p-8 bg-gradient-to-br from-green-50 to-teal-50 rounded-xl shadow-sm border border-green-100">
@@ -304,6 +344,38 @@ const TextProcessor: React.FC<TextProcessorProps> = ({ toolType }): React.ReactE
         setTypingComplete(true);
       }
       
+      // Add the click handler for grammar corrections if this is the grammar checker
+      if (toolType === 'grammar-checker' && !processedText.includes('Your text has perfect grammar')) {
+        // Add the click handler to the window object so it can be accessed from the HTML
+        window.handleGrammarCorrectionClick = (element) => {
+          const original = element.getAttribute('data-original');
+          const corrected = element.getAttribute('data-corrected');
+          
+          // First, remove all child elements (including tooltips)
+          while (element.firstChild) {
+            element.removeChild(element.firstChild);
+          }
+          
+          // Replace the text in the element with the correction
+          element.textContent = corrected;
+          
+          // Remove the hover tooltip and styling
+          element.classList.remove('border-dashed', 'border-current', 'group', 'cursor-pointer', 'grammar-correction');
+          element.classList.add('text-green-500');
+          
+          // Remove the click handler and data attributes
+          element.removeAttribute('onclick');
+          element.removeAttribute('data-original');
+          element.removeAttribute('data-corrected');
+          element.removeAttribute('data-error-type');
+        };
+      } else {
+        // Clean up the handler if not needed
+        if (window.handleGrammarCorrectionClick) {
+          delete window.handleGrammarCorrectionClick;
+        }
+      }
+      
     } catch (error) {
       console.error('Error processing text:', error);
       setError('An error occurred while processing your text. Please try again.');
@@ -324,6 +396,13 @@ const TextProcessor: React.FC<TextProcessorProps> = ({ toolType }): React.ReactE
   const stripHtml = (html: string) => {
     const tmp = document.createElement('DIV');
     tmp.innerHTML = html;
+    
+    // Remove all tooltip elements before getting the text content
+    const tooltips = tmp.querySelectorAll('.grammar-correction span');
+    tooltips.forEach(tooltip => {
+      tooltip.parentNode?.removeChild(tooltip);
+    });
+    
     return tmp.textContent || tmp.innerText || '';
   };
 
@@ -342,8 +421,25 @@ const TextProcessor: React.FC<TextProcessorProps> = ({ toolType }): React.ReactE
   };
 
   const handleCopy = () => {
-    const textToCopy = outputText ? stripHtml(outputText) : inputText;
-    navigator.clipboard.writeText(textToCopy);
+    let textToCopy;
+    
+    // For grammar checker, use the fully corrected text
+    if (toolType === 'grammar-checker' && apiResult && (apiResult as GrammarCheckerResponse).correctedText) {
+      textToCopy = (apiResult as GrammarCheckerResponse).correctedText;
+    } else {
+      // For other tools, use the processed output or input
+      textToCopy = outputText ? stripHtml(outputText) : inputText;
+    }
+    
+    navigator.clipboard.writeText(textToCopy)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      })
+      .catch(err => {
+        console.error('Failed to copy text:', err);
+        setError('Failed to copy text. Please try again.');
+      });
   };
 
 
