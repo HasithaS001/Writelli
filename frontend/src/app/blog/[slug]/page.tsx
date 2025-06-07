@@ -10,7 +10,8 @@ import { blogPosts } from '@/data/blogPosts';
 
 export default function BlogPostPage() {
   const params = useParams();
-  const post = blogPosts.find(post => post.slug === params.slug);
+  const slug = params?.slug as string;
+  const post = blogPosts.find(post => post.slug === slug);
 
   if (!post) {
     return (
