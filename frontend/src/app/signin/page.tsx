@@ -18,7 +18,7 @@ function SignInForm() {
   
   // Check for error in URL params (from auth callback)
   useEffect(() => {
-    const errorParam = searchParams.get('error');
+    const errorParam = searchParams?.get('error');
     if (errorParam) {
       setError(decodeURIComponent(errorParam));
     }
