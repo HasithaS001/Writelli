@@ -6,10 +6,11 @@ export type ToolType =
   | 'summarizer'
   | 'translator'
   | 'tone-converter'
-  | 'humanizer';
+  | 'humanizer'
+  | 'article-rewriter';
 
 // Mode types for each tool
-export type GrammarCheckerMode = 'standard' | 'advanced';
+export type GrammarCheckerMode = 'standard';
 export type ReadabilityCheckerMode = 'standard';
 export type ParaphraserMode = 
   | 'standard'
@@ -23,6 +24,7 @@ export type ParaphraserMode =
 export type SummarizerMode = 'bullet' | 'executive' | 'detailed';
 export type ToneConverterMode = 'formal' | 'friendly' | 'professional' | 'empathetic' | 'witty';
 export type HumanizerMode = 'natural' | 'bypass' | 'emotional' | 'conversational' | 'genz';
+export type ArticleRewriterMode = 'readability' | 'tone' | 'seo' | 'unique';
 
 // API response types
 export interface ApiResponse {
@@ -72,6 +74,10 @@ export interface HumanizerResponse extends ApiResponse {
   humanizedText: string;
 }
 
+export interface ArticleRewriterResponse extends ApiResponse {
+  rewrittenText: string;
+}
+
 
 // Tool descriptions for UI
 export interface ToolDescription {
@@ -93,13 +99,8 @@ export const TOOLS: ToolDescription[] = [
     modes: [
       {
         id: 'standard',
-        name: 'Standard Check',
-        description: 'Fixes basic spelling, punctuation, and grammar'
-      },
-      {
-        id: 'advanced',
-        name: 'Advanced Check',
-        description: 'Fixes style issues, complex grammar, and writing clarity'
+        name: 'Grammar Check',
+        description: 'Fixes spelling, punctuation, and grammar issues in your text'
       }
     ]
   },
@@ -251,6 +252,33 @@ export const TOOLS: ToolDescription[] = [
         id: 'genz',
         name: 'Gen Z Style',
         description: 'Adds youthful, contemporary language style'
+      }
+    ]
+  },
+  {
+    id: 'article-rewriter',
+    name: 'Article Rewriter',
+    description: 'Rewrite content to improve readability, tone, and SEO',
+    modes: [
+      {
+        id: 'readability',
+        name: 'Improve Readability',
+        description: 'Enhances clarity and engagement'
+      },
+      {
+        id: 'tone',
+        name: 'Change Tone',
+        description: 'Adapts content to formal, friendly, or persuasive tone'
+      },
+      {
+        id: 'seo',
+        name: 'Optimize for SEO',
+        description: 'Integrates keywords and improves structure'
+      },
+      {
+        id: 'unique',
+        name: 'Make Unique',
+        description: 'Creates original content while preserving meaning'
       }
     ]
   }

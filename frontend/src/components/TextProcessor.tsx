@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from 'react';
 declare global {
   interface Window {
@@ -12,8 +14,9 @@ import BulletPointSummary from '@/components/ui/BulletPointSummary';
 import ModeSelector from '@/components/ModeSelector';
 import LanguageSelector from '@/components/LanguageSelector';
 import ReadabilityScoreDisplay from '@/components/ReadabilityScoreDisplay';
-import ReadabilityImprovementPoints from '@/components/ReadabilityImprovementPoints';
 import RevisedExampleDisplay from '@/components/RevisedExampleDisplay';
+import ReadabilityImprovementPoints from '@/components/ReadabilityImprovementPoints';
+import ArticleRewriterOptions from './ArticleRewriterOptions';
 import TypingAnimation from '@/components/ui/TypingAnimation';
 import { useSubscription } from '@/hooks/useSubscription';
 import { 
@@ -25,7 +28,10 @@ import {
   TranslatorResponse,
   ToneConverterResponse,
   HumanizerResponse,
-  ReadabilityScores
+  ArticleRewriterResponse,
+  ReadabilityScores,
+  GrammarCheckerMode,
+  ArticleRewriterMode
 } from '@/types';
 import { processText } from '@/services/api';
 
@@ -111,7 +117,8 @@ const TextProcessor: React.FC<TextProcessorProps> = ({ toolType }): React.ReactE
   const [inputText, setInputText] = useState('');
   const [outputText, setOutputText] = useState('');
   const [mode, setMode] = useState('');
-  const [language, setLanguage] = useState('English');
+  const [language, setLanguage] = useState<string>('Spanish');
+  const [keyword, setKeyword] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [readabilityScores, setReadabilityScores] = useState<ReadabilityScores | null>(null);
@@ -135,8 +142,14 @@ const TextProcessor: React.FC<TextProcessorProps> = ({ toolType }): React.ReactE
     // Set the default mode for the tool
     const modes = getToolModes(toolType);
     if (modes.length > 0) {
-      setMode(modes[0]);
+      if (toolType === 'article-rewriter') {
+        console.log('Setting default mode for article rewriter to readability');
+        setMode('readability'); // Default mode for article rewriter
+      } else {
+        setMode(modes[0]);
+      }
     }
+    console.log('Initial mode set to:', mode, 'for tool:', toolType);
     
     // Reset states when tool type changes
     setInputText('');
@@ -144,6 +157,7 @@ const TextProcessor: React.FC<TextProcessorProps> = ({ toolType }): React.ReactE
     setError(null);
     setReadabilityScores(null);
     setRevisedExample(null);
+    setKeyword(''); // Reset keyword for article rewriter
     setTypingComplete(false);
     setShowCopyButton(false);
   }, [toolType]);
@@ -153,6 +167,12 @@ const TextProcessor: React.FC<TextProcessorProps> = ({ toolType }): React.ReactE
     const plainText = inputText.replace(/<[^>]*>/g, '').trim();
     if (!plainText) {
       setError('Please enter some text to process');
+      return;
+    }
+    
+    // Validate that a keyword is provided for SEO mode
+    if (toolType === 'article-rewriter' && mode === 'seo' && !keyword.trim()) {
+      setError('Please enter a target keyword for SEO optimization.');
       return;
     }
 
@@ -165,7 +185,32 @@ const TextProcessor: React.FC<TextProcessorProps> = ({ toolType }): React.ReactE
     setRevisedExample(null);
 
     try {
-      const result = await processText(toolType, inputText, mode, language);
+      let result;
+      try {
+        console.log('Processing text for tool:', toolType, 'with mode:', mode);
+        if (toolType === 'translator') {
+          result = await processText(toolType as ToolType, inputText, mode, language);
+        } else if (toolType === 'article-rewriter' && mode === 'seo') {
+          console.log('Article rewriter with SEO mode and keyword:', keyword);
+          // Explicitly pass the mode as a string literal for type safety
+          const seoMode: ArticleRewriterMode = 'seo';
+          result = await processText(toolType as ToolType, inputText, seoMode, undefined, [keyword]);
+        } else if (toolType === 'article-rewriter') {
+          // Ensure mode is one of the valid ArticleRewriterMode values
+          let safeMode: ArticleRewriterMode = 'readability';
+          if (mode === 'tone' || mode === 'unique' || mode === 'readability') {
+            safeMode = mode as ArticleRewriterMode;
+          }
+          console.log('Article rewriter with mode:', safeMode);
+          result = await processText(toolType as ToolType, inputText, safeMode);
+        } else {
+          result = await processText(toolType as ToolType, inputText, mode);
+        }
+        console.log('API result:', result);
+      } catch (error) {
+        console.error('Error in processText call:', error);
+        throw error;
+      }
       setApiResult(result); // Store the API result for later use
       
       // Function to convert Markdown-style bold (**text**) to HTML bold tags (<b>text</b>)
@@ -176,8 +221,19 @@ const TextProcessor: React.FC<TextProcessorProps> = ({ toolType }): React.ReactE
       // Extract the appropriate field based on the tool type
       let processedText = '';
       
-      // Check if result is null (which happens when using fallbacks)
-      if (!result) {
+      if (error) {
+        processedText = `
+          <div class="p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div class="flex items-center space-x-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+              </svg>
+              <span class="font-medium text-red-800">Error</span>
+            </div>
+            <p class="mt-2 text-sm text-red-700">${error}</p>
+          </div>
+        `;
+      } else if (!result) {
         processedText = `
           <div class="p-6 bg-blue-50 rounded-xl border border-blue-100">
             <div class="flex items-center mb-3">
@@ -207,6 +263,9 @@ const TextProcessor: React.FC<TextProcessorProps> = ({ toolType }): React.ReactE
               (a, b) => b.original.length - a.original.length
             );
 
+            // Create a deep copy of the original text to work with
+            let processedOriginalText = originalText;
+
             sortedCorrections.forEach((correction, index) => {
               if (correction.original !== correction.corrected) {
                 const escapedOriginal = correction.original.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -230,31 +289,19 @@ const TextProcessor: React.FC<TextProcessorProps> = ({ toolType }): React.ReactE
                   errorType = 'Writing Error';
                 }
                 
+                // In standard mode (now the only mode), show all types of corrections
+                const currentMode = 'standard';
+                
                 // Create an element with modern hover tooltip showing error type and correction
-                originalText = originalText.replace(
+                processedOriginalText = processedOriginalText.replace(
                   regex,
-                  `<span 
-                    class="${colorClass} border-b-2 border-dashed border-current relative group cursor-pointer grammar-correction"
-                    data-original="${correction.original}"
-                    data-corrected="${correction.corrected}"
-                    data-error-type="${errorType}"
-                    onclick="window.handleGrammarCorrectionClick && window.handleGrammarCorrectionClick(this)"
-                  >
-                    ${correction.original}
-                    <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 min-w-[200px] bg-white shadow-lg rounded-md py-2 px-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 border border-gray-200">
-                      <div class="flex flex-col gap-1">
-                        <div class="text-xs font-semibold text-gray-500">${errorType}</div>
-                        <div class="font-medium text-sm text-gray-800">Suggestion: <span class="text-green-600">${correction.corrected}</span></div>
-                        <div class="mt-1 text-xs text-gray-500">Click to replace</div>
-                      </div>
-                    </span>
-                  </span>`
+                  `<span class="${colorClass} border-b-2 border-solid border-current relative group cursor-pointer grammar-correction" data-original="${correction.original}" data-corrected="${correction.corrected}" data-error-type="${errorType}" onclick="window.handleGrammarCorrectionClick && window.handleGrammarCorrectionClick(this)">${correction.original}<div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 w-max max-w-xs bg-white text-gray-900 text-sm rounded-md shadow-lg p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10"><div class="font-medium ${colorClass} mb-1">${errorType}</div><div class="text-gray-700">Suggestion: <span class="font-medium">${correction.corrected}</span></div><div class="text-gray-500 text-xs mt-1">Click to replace</div></div></span>`
                 );
               }
             });
             
             // Use the processed original text with underlined mistakes
-            processedText = originalText;
+            processedText = processedOriginalText;
           } else {
             processedText = `
               <div class="p-8 bg-gradient-to-br from-green-50 to-teal-50 rounded-xl shadow-sm border border-green-100">
@@ -329,6 +376,37 @@ const TextProcessor: React.FC<TextProcessorProps> = ({ toolType }): React.ReactE
         if (humanizerResult && humanizerResult.humanizedText) {
           processedText = humanizerResult.humanizedText;
         }
+      } else if (toolType as ToolType === 'article-rewriter') {
+        const articleRewriterResult = result as ArticleRewriterResponse;
+        console.log('Article Rewriter result:', articleRewriterResult);
+        if (articleRewriterResult && articleRewriterResult.rewrittenText) {
+          // Ensure we're getting a completely different text than the input
+          if (articleRewriterResult.rewrittenText === inputText) {
+            console.error('Article Rewriter returned the same text as input');
+            processedText = `<div class="p-4 bg-red-50 border border-red-200 rounded-lg">
+              <div class="flex items-center space-x-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+                <span class="font-medium text-red-800">Error</span>
+              </div>
+              <p class="mt-2 text-sm text-red-700">The rewriter returned the same text. Please try again with different text.</p>
+            </div>`;
+          } else {
+            processedText = articleRewriterResult.rewrittenText;
+          }
+        } else {
+          console.error('Article Rewriter returned null or empty rewrittenText');
+          processedText = `<div class="p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div class="flex items-center space-x-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+              </svg>
+              <span class="font-medium text-red-800">Error</span>
+            </div>
+            <p class="mt-2 text-sm text-red-700">Failed to rewrite the article. Please try again.</p>
+          </div>`;
+        }
       }
       
       // Convert Markdown-style bold syntax to HTML bold tags
@@ -351,23 +429,35 @@ const TextProcessor: React.FC<TextProcessorProps> = ({ toolType }): React.ReactE
           const original = element.getAttribute('data-original');
           const corrected = element.getAttribute('data-corrected');
           
-          // First, remove all child elements (including tooltips)
-          while (element.firstChild) {
-            element.removeChild(element.firstChild);
+          // Create a new text node with the corrected word
+          const textNode = document.createTextNode(corrected || '');
+          
+          // Get the parent element
+          const parentElement = element.parentNode;
+          
+          if (parentElement) {
+            // Replace the element with just the text node
+            parentElement.replaceChild(textNode, element);
+          } else {
+            // Fallback if parent is not available
+            // First, remove all child elements (including tooltips)
+            while (element.firstChild) {
+              element.removeChild(element.firstChild);
+            }
+            
+            // Replace the text in the element with the correction
+            element.textContent = corrected;
+            
+            // Remove all styling classes
+            element.className = '';
+            
+            // Remove the click handler and data attributes
+            element.removeAttribute('onclick');
+            element.removeAttribute('data-original');
+            element.removeAttribute('data-corrected');
+            element.removeAttribute('data-error-type');
+            element.removeAttribute('style');
           }
-          
-          // Replace the text in the element with the correction
-          element.textContent = corrected;
-          
-          // Remove the hover tooltip and styling
-          element.classList.remove('border-dashed', 'border-current', 'group', 'cursor-pointer', 'grammar-correction');
-          element.classList.add('text-green-500');
-          
-          // Remove the click handler and data attributes
-          element.removeAttribute('onclick');
-          element.removeAttribute('data-original');
-          element.removeAttribute('data-corrected');
-          element.removeAttribute('data-error-type');
         };
       } else {
         // Clean up the handler if not needed
@@ -383,6 +473,8 @@ const TextProcessor: React.FC<TextProcessorProps> = ({ toolType }): React.ReactE
       setIsProcessing(false);
     }
   };
+
+
 
   const handleClear = () => {
     setInputText('');
@@ -426,6 +518,9 @@ const TextProcessor: React.FC<TextProcessorProps> = ({ toolType }): React.ReactE
     // For grammar checker, use the fully corrected text
     if (toolType === 'grammar-checker' && apiResult && (apiResult as GrammarCheckerResponse).correctedText) {
       textToCopy = (apiResult as GrammarCheckerResponse).correctedText;
+      
+      // Update the output text to show the fully corrected text without underlines
+      setOutputText(textToCopy);
     } else {
       // For other tools, use the processed output or input
       textToCopy = outputText ? stripHtml(outputText) : inputText;
@@ -530,6 +625,18 @@ const TextProcessor: React.FC<TextProcessorProps> = ({ toolType }): React.ReactE
               <LanguageSelector
                 selectedLanguage={language}
                 onSelectLanguage={setLanguage}
+              />
+            </div>
+          )}
+
+          {/* Article Rewriter Options */}
+          {toolType === 'article-rewriter' && (
+            <div className="flex-1">
+              <ArticleRewriterOptions
+                selectedMode={mode as ArticleRewriterMode}
+                onModeChange={setMode}
+                keyword={keyword}
+                onKeywordChange={setKeyword}
               />
             </div>
           )}
@@ -639,7 +746,7 @@ const TextProcessor: React.FC<TextProcessorProps> = ({ toolType }): React.ReactE
             
 
             
-            <div className="bg-gray-50 rounded-xl p-3 sm:p-5 flex-1 overflow-auto">
+            <div className="bg-gray-50 rounded-xl p-0 flex-1 overflow-auto h-full w-full">
               <ReadabilityScoreDisplay fleschKincaid={readabilityScores.fleschKincaid} gunningFog={readabilityScores.gunningFog} />
               {revisedExample && <RevisedExampleDisplay revisedExample={revisedExample} />}
               {outputText && (
@@ -685,12 +792,12 @@ const TextProcessor: React.FC<TextProcessorProps> = ({ toolType }): React.ReactE
               )}
             </div>
             
-            <div className="bg-gray-50 rounded-xl p-3 sm:p-5 flex-1 overflow-auto">
+            <div className="bg-gray-50 rounded-xl p-0 flex-1 overflow-auto h-full w-full">
               {outputText ? (
                 <>
                   {/* Check if this is the Perfect Grammar message and display it without animation */}
                   {outputText.includes('Your text has perfect grammar') ? (
-                    <div className="text-black" dangerouslySetInnerHTML={{ __html: outputText }} />
+                    <div className="text-black p-4 h-full" dangerouslySetInnerHTML={{ __html: outputText }} />
                   ) : toolType === 'summarizer' && mode === 'bullet' && typingComplete ? (
                     <BulletPointSummary 
                       summaryText={outputText}
@@ -700,7 +807,7 @@ const TextProcessor: React.FC<TextProcessorProps> = ({ toolType }): React.ReactE
                     <TypingAnimation 
                       text={outputText} 
                       typingSpeed={200} 
-                      className="prose max-w-none text-black"
+                      className="prose max-w-none text-black p-4 h-full w-full"
                       onComplete={() => {
                         setTypingComplete(true);
                         setShowCopyButton(true);
@@ -999,6 +1106,54 @@ const TextProcessor: React.FC<TextProcessorProps> = ({ toolType }): React.ReactE
                       </div>
                       <h3 className="text-xl font-semibold mb-2">Humanizer</h3>
                       <p className="max-w-md mx-auto">Enter your text and click "Process Humanizer" to make AI-generated content sound more natural and human-written. This tool adds personality and warmth to robotic-sounding text.</p>
+                    </div>
+                  )}
+                  
+                  {toolType === 'article-rewriter' && (
+                    <div className="text-black">
+                      <div className="w-48 h-48 mx-auto mb-6">
+                        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+                          {/* Background */}
+                          <rect width="200" height="200" rx="10" fill="#EFF6FF" />
+                          
+                          {/* Original document */}
+                          <rect x="30" y="40" width="60" height="120" rx="4" fill="white" stroke="#2563EB" strokeWidth="2" />
+                          
+                          {/* Document lines */}
+                          <line x1="40" y1="60" x2="80" y2="60" stroke="#BFDBFE" strokeWidth="2" strokeLinecap="round" />
+                          <line x1="40" y1="75" x2="80" y2="75" stroke="#BFDBFE" strokeWidth="2" strokeLinecap="round" />
+                          <line x1="40" y1="90" x2="80" y2="90" stroke="#BFDBFE" strokeWidth="2" strokeLinecap="round" />
+                          <line x1="40" y1="105" x2="70" y2="105" stroke="#BFDBFE" strokeWidth="2" strokeLinecap="round" />
+                          <line x1="40" y1="120" x2="80" y2="120" stroke="#BFDBFE" strokeWidth="2" strokeLinecap="round" />
+                          <line x1="40" y1="135" x2="65" y2="135" stroke="#BFDBFE" strokeWidth="2" strokeLinecap="round" />
+                          
+                          {/* Rewritten document */}
+                          <rect x="110" y="40" width="60" height="120" rx="4" fill="white" stroke="#1D4ED8" strokeWidth="2" />
+                          
+                          {/* Rewritten document lines */}
+                          <line x1="120" y1="60" x2="160" y2="60" stroke="#93C5FD" strokeWidth="2" strokeLinecap="round" />
+                          <line x1="120" y1="75" x2="160" y2="75" stroke="#93C5FD" strokeWidth="2" strokeLinecap="round" />
+                          <line x1="120" y1="90" x2="150" y2="90" stroke="#93C5FD" strokeWidth="2" strokeLinecap="round" />
+                          <line x1="120" y1="105" x2="160" y2="105" stroke="#93C5FD" strokeWidth="2" strokeLinecap="round" />
+                          <line x1="120" y1="120" x2="160" y2="120" stroke="#93C5FD" strokeWidth="2" strokeLinecap="round" />
+                          <line x1="120" y1="135" x2="145" y2="135" stroke="#93C5FD" strokeWidth="2" strokeLinecap="round" />
+                          
+                          {/* Arrow */}
+                          <path d="M95,100 L105,100" stroke="#2563EB" strokeWidth="2" strokeLinecap="round" />
+                          <path d="M105,100 L101,96" stroke="#2563EB" strokeWidth="2" strokeLinecap="round" />
+                          <path d="M105,100 L101,104" stroke="#2563EB" strokeWidth="2" strokeLinecap="round" />
+                          
+                          {/* Mode circle */}
+                          <circle cx="100" cy="80" r="10" fill="#DBEAFE" stroke="#3B82F6" strokeWidth="1.5" />
+                          <text x="100" y="84" fontSize="10" fontFamily="Arial, sans-serif" textAnchor="middle" fill="#1E40AF" fontWeight="bold">R</text>
+                          
+                          {/* Mode circle */}
+                          <circle cx="100" cy="120" r="10" fill="#DBEAFE" stroke="#3B82F6" strokeWidth="1.5" />
+                          <text x="100" y="124" fontSize="10" fontFamily="Arial, sans-serif" textAnchor="middle" fill="#1E40AF" fontWeight="bold">T</text>
+                        </svg>
+                      </div>
+                      <h3 className="text-xl font-semibold mb-2">Article Rewriter</h3>
+                      <p className="max-w-md mx-auto">Enter your text and click "Process Article Rewriter" to transform your content. Choose from different modes like readability, tone, SEO, or unique to enhance your article while maintaining its core message.</p>
                     </div>
                   )}
                   

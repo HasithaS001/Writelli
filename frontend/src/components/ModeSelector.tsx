@@ -26,7 +26,6 @@ const ModeSelector: React.FC<ModeSelectorProps> = ({
 
   // Determine which modes require Pro subscription
   const proOnlyModes = {
-    'grammar-checker': ['advanced'],
     'paraphraser': ['expand', 'academic', 'seo'],
     'summarizer': ['detailed'],
     'humanizer': ['bypass']

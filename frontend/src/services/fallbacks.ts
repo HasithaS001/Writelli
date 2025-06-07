@@ -10,7 +10,8 @@ import {
   SummarizerResponse,
   TranslatorResponse,
   ToneConverterResponse,
-  HumanizerResponse
+  HumanizerResponse,
+  ArticleRewriterResponse
 } from '@/types';
 
 /**
@@ -203,5 +204,37 @@ export function getFallbackToneConverterResponse(text: string, tone: string): To
 export function getFallbackHumanizerResponse(text: string): HumanizerResponse {
   return {
     humanizedText: text
+  };
+}
+
+/**
+ * Generate a fallback article rewriter response
+ */
+export function getFallbackArticleRewriterResponse(text: string): ArticleRewriterResponse {
+  return {
+    error: 'Service temporarily unavailable',
+    rewrittenText: `
+      <div class="p-6 bg-blue-50 rounded-xl border border-blue-100 shadow-sm">
+        <div class="flex items-center mb-3">
+          <span class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-blue-500 mr-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9a1 1 0 00-1-1z" clip-rule="evenodd" />
+            </svg>
+          </span>
+          <h3 class="text-lg font-semibold text-blue-800">Article Rewriter Temporarily Unavailable</h3>
+        </div>
+        <div class="ml-11 space-y-2">
+          <p class="text-blue-700">Our article rewriting service is experiencing high demand. While you wait, here are some tips for rewriting content:</p>
+          <ul class="list-disc text-blue-700 ml-5 space-y-1">
+            <li>Vary sentence structure and length to improve readability</li>
+            <li>Replace common words with more specific alternatives</li>
+            <li>Reorganize paragraphs to improve flow</li>
+            <li>Use active voice instead of passive voice</li>
+            <li>Break up long sentences into shorter ones</li>
+          </ul>
+          <p class="text-blue-700 mt-3">Please try again in a few moments.</p>
+        </div>
+      </div>
+    `
   };
 }
