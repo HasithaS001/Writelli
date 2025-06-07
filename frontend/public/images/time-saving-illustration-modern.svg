@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Modern background shape with gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EBF4FF" />
+      <stop offset="100%" stop-color="#E6FFFA" />
+    </linearGradient>
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="100%" stop-color="#2563EB" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Modern wavy background -->
+  <path d="M50 300 Q200 200 400 300 Q600 400 750 300 V550 H50 Z" fill="url(#bgGradient)" opacity="0.6" />
+  
+  <!-- Decorative circles -->
+  <circle cx="650" cy="150" r="80" fill="#EBF4FF" opacity="0.5" />
+  <circle cx="150" cy="200" r="60" fill="#E6FFFA" opacity="0.5" />
+  
+  <!-- Main elements -->
+  <g transform="translate(400, 300)">
+    <!-- Central clock face -->
+    <circle cx="0" cy="0" r="120" fill="white" stroke="#E2E8F0" stroke-width="8" />
+    <circle cx="0" cy="0" r="110" fill="white" stroke="#F0F4F8" stroke-width="2" />
+    
+    <!-- Clock markers -->
+    <line x1="0" y1="-100" x2="0" y2="-85" stroke="#3B82F6" stroke-width="6" stroke-linecap="round" />
+    <line x1="100" y1="0" x2="85" y2="0" stroke="#3B82F6" stroke-width="6" stroke-linecap="round" />
+    <line x1="0" y1="100" x2="0" y2="85" stroke="#3B82F6" stroke-width="6" stroke-linecap="round" />
+    <line x1="-100" y1="0" x2="-85" y2="0" stroke="#3B82F6" stroke-width="6" stroke-linecap="round" />
+    
+    <!-- Clock hands -->
+    <line x1="0" y1="0" x2="0" y2="-70" stroke="#2563EB" stroke-width="6" stroke-linecap="round" />
+    <line x1="0" y1="0" x2="50" y2="0" stroke="#2563EB" stroke-width="8" stroke-linecap="round" />
+    <circle cx="0" cy="0" r="10" fill="url(#accentGradient)" />
+    
+    <!-- Fast-forward icon -->
+    <g transform="translate(180, -80)">
+      <circle cx="0" cy="0" r="50" fill="white" stroke="#E2E8F0" stroke-width="4" />
+      <path d="M-15 -15 L15 0 L-15 15 Z" fill="url(#accentGradient)" />
+      <path d="M5 -15 L35 0 L5 15 Z" fill="url(#accentGradient)" />
+    </g>
+    
+    <!-- Productivity chart -->
+    <g transform="translate(-180, 60)">
+      <rect x="-50" y="-50" width="100" height="100" rx="10" fill="white" stroke="#E2E8F0" stroke-width="4" />
+      <!-- Chart bars -->
+      <rect x="-35" y="30" width="15" height="-30" fill="#CBD5E0" rx="2" />
+      <rect x="-10" y="30" width="15" height="-50" fill="#A0AEC0" rx="2" />
+      <rect x="15" y="30" width="15" height="-70" fill="url(#accentGradient)" rx="2" />
+    </g>
+  </g>
+  
+  <!-- Person silhouette -->
+  <g transform="translate(400, 420)">
+    <!-- Modern person silhouette -->
+    <circle cx="0" cy="-90" r="30" fill="#3B82F6" />
+    <path d="M-15 -60 C-40 -20 -40 40 -30 80 L-10 80 L-15 0 L15 0 L10 80 L30 80 C40 40 40 -20 15 -60" fill="#3B82F6" />
+    
+    <!-- Rocket effect -->
+    <path d="M-20 80 L-30 110 L-10 90 Z" fill="#3B82F6" opacity="0.8" />
+    <path d="M20 80 L30 110 L10 90 Z" fill="#3B82F6" opacity="0.8" />
+    
+    <!-- Speed lines -->
+    <path d="M-60 -40 L-40 -40" stroke="#3B82F6" stroke-width="4" stroke-linecap="round" opacity="0.6" />
+    <path d="M-70 -10 L-45 -10" stroke="#3B82F6" stroke-width="4" stroke-linecap="round" opacity="0.6" />
+    <path d="M-65 20 L-40 20" stroke="#3B82F6" stroke-width="4" stroke-linecap="round" opacity="0.6" />
+    <path d="M60 -40 L40 -40" stroke="#3B82F6" stroke-width="4" stroke-linecap="round" opacity="0.6" />
+    <path d="M70 -10 L45 -10" stroke="#3B82F6" stroke-width="4" stroke-linecap="round" opacity="0.6" />
+    <path d="M65 20 L40 20" stroke="#3B82F6" stroke-width="4" stroke-linecap="round" opacity="0.6" />
+  </g>
+  
+  <!-- Floating checkmarks -->
+  <g transform="translate(250, 200)">
+    <circle cx="0" cy="0" r="25" fill="white" stroke="#E2E8F0" stroke-width="3" />
+    <path d="M-10 0 L-3 7 L10 -6" stroke="#3B82F6" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+  
+  <g transform="translate(550, 180)">
+    <circle cx="0" cy="0" r="20" fill="white" stroke="#E2E8F0" stroke-width="3" />
+    <path d="M-8 0 L-2 6 L8 -4" stroke="#3B82F6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+  
+  <g transform="translate(500, 400)">
+    <circle cx="0" cy="0" r="15" fill="white" stroke="#E2E8F0" stroke-width="2" />
+    <path d="M-6 0 L-1 5 L6 -2" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+</svg>

@@ -13,7 +13,7 @@ function AuthCallback() {
     const handleAuthCallback = async () => {
       try {
         // Check if this is a password reset callback
-        const type = searchParams.get('type');
+        const type = searchParams?.get('type');
         
         if (type === 'recovery') {
           // This is a password reset flow

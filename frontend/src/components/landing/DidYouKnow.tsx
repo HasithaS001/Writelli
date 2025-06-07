@@ -1,5 +1,24 @@
-import React from 'react';
+"use client";
+
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
+
+// Create a client-side only component for the illustration
+const IllustrationComponent = dynamic(
+  () => Promise.resolve(({ src }: { src: string }) => (
+    <div className="relative h-[400px]">
+      <Image
+        src={src}
+        alt="Time saving illustration"
+        fill
+        style={{ objectFit: 'contain' }}
+        priority
+      />
+    </div>
+  )),
+  { ssr: false, loading: () => <div className="h-[400px] bg-gray-100 rounded-lg animate-pulse"></div> }
+);
 
 const DidYouKnow = () => {
   return (
@@ -35,15 +54,7 @@ const DidYouKnow = () => {
           </div>
 
           {/* Illustration */}
-          <div className="relative h-[400px]">
-            <Image
-              src="/images/time-saving-illustration.svg"
-              alt="Time saving illustration"
-              fill
-              style={{ objectFit: 'contain' }}
-              priority
-            />
-          </div>
+          <IllustrationComponent src="/images/time-saving-illustration-modern.svg" />
         </div>
       </div>
     </section>

@@ -9,6 +9,8 @@ import GrammarCheckerPromo from './GrammarCheckerPromo';
 import ReadabilityCheckerPromo from './ReadabilityCheckerPromo';
 import TranslatorPromo from './TranslatorPromo';
 import SummarizerPromo from './SummarizerPromo';
+import ArticleRewriterPromo from './ArticleRewriterPromo';
+
 import TestimonialsSection from './TestimonialsSection';
 import DidYouKnow from './DidYouKnow';
 import PricingSection from './PricingSection';
@@ -25,10 +27,12 @@ const LandingPage = () => {
         <HeroSection />
         <SocialProof />
         <FeaturesSection />
+        <ArticleRewriterPromo />
         <GrammarCheckerPromo />
         <ReadabilityCheckerPromo />
         <TranslatorPromo />
         <SummarizerPromo />
+
         <TestimonialsSection />
         <DidYouKnow />
         <PricingSection showComparisonToggle={false} initialComparisonState={false} />

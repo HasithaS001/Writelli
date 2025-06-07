@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
+import dynamic from 'next/dynamic';
 declare global {
   interface Window {
     handleGrammarCorrectionClick?: (element: HTMLElement) => void;
@@ -34,6 +35,25 @@ import {
   ArticleRewriterMode
 } from '@/types';
 import { processText } from '@/services/api';
+
+// Create a client-side only component for the Article Rewriter illustration
+const ArticleRewriterIllustration = dynamic(
+  () => Promise.resolve(() => (
+    <div className="relative w-full h-full">
+      {/* Left document */}
+      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-16 h-24 bg-white border-2 border-blue-500 rounded-md"></div>
+      
+      {/* Right document */}
+      <div className="absolute right-4 top-1/2 transform -translate-y-1/2 w-16 h-24 bg-white border-2 border-blue-600 rounded-md"></div>
+      
+      {/* Center arrow */}
+      <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+        <div className="w-4 h-4 border-t-2 border-r-2 border-blue-600 transform rotate-45"></div>
+      </div>
+    </div>
+  )),
+  { ssr: false }
+);
 
 interface TextProcessorProps {
   toolType: ToolType;
@@ -1111,46 +1131,8 @@ const TextProcessor: React.FC<TextProcessorProps> = ({ toolType }): React.ReactE
                   
                   {toolType === 'article-rewriter' && (
                     <div className="text-black">
-                      <div className="w-48 h-48 mx-auto mb-6">
-                        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-                          {/* Background */}
-                          <rect width="200" height="200" rx="10" fill="#EFF6FF" />
-                          
-                          {/* Original document */}
-                          <rect x="30" y="40" width="60" height="120" rx="4" fill="white" stroke="#2563EB" strokeWidth="2" />
-                          
-                          {/* Document lines */}
-                          <line x1="40" y1="60" x2="80" y2="60" stroke="#BFDBFE" strokeWidth="2" strokeLinecap="round" />
-                          <line x1="40" y1="75" x2="80" y2="75" stroke="#BFDBFE" strokeWidth="2" strokeLinecap="round" />
-                          <line x1="40" y1="90" x2="80" y2="90" stroke="#BFDBFE" strokeWidth="2" strokeLinecap="round" />
-                          <line x1="40" y1="105" x2="70" y2="105" stroke="#BFDBFE" strokeWidth="2" strokeLinecap="round" />
-                          <line x1="40" y1="120" x2="80" y2="120" stroke="#BFDBFE" strokeWidth="2" strokeLinecap="round" />
-                          <line x1="40" y1="135" x2="65" y2="135" stroke="#BFDBFE" strokeWidth="2" strokeLinecap="round" />
-                          
-                          {/* Rewritten document */}
-                          <rect x="110" y="40" width="60" height="120" rx="4" fill="white" stroke="#1D4ED8" strokeWidth="2" />
-                          
-                          {/* Rewritten document lines */}
-                          <line x1="120" y1="60" x2="160" y2="60" stroke="#93C5FD" strokeWidth="2" strokeLinecap="round" />
-                          <line x1="120" y1="75" x2="160" y2="75" stroke="#93C5FD" strokeWidth="2" strokeLinecap="round" />
-                          <line x1="120" y1="90" x2="150" y2="90" stroke="#93C5FD" strokeWidth="2" strokeLinecap="round" />
-                          <line x1="120" y1="105" x2="160" y2="105" stroke="#93C5FD" strokeWidth="2" strokeLinecap="round" />
-                          <line x1="120" y1="120" x2="160" y2="120" stroke="#93C5FD" strokeWidth="2" strokeLinecap="round" />
-                          <line x1="120" y1="135" x2="145" y2="135" stroke="#93C5FD" strokeWidth="2" strokeLinecap="round" />
-                          
-                          {/* Arrow */}
-                          <path d="M95,100 L105,100" stroke="#2563EB" strokeWidth="2" strokeLinecap="round" />
-                          <path d="M105,100 L101,96" stroke="#2563EB" strokeWidth="2" strokeLinecap="round" />
-                          <path d="M105,100 L101,104" stroke="#2563EB" strokeWidth="2" strokeLinecap="round" />
-                          
-                          {/* Mode circle */}
-                          <circle cx="100" cy="80" r="10" fill="#DBEAFE" stroke="#3B82F6" strokeWidth="1.5" />
-                          <text x="100" y="84" fontSize="10" fontFamily="Arial, sans-serif" textAnchor="middle" fill="#1E40AF" fontWeight="bold">R</text>
-                          
-                          {/* Mode circle */}
-                          <circle cx="100" cy="120" r="10" fill="#DBEAFE" stroke="#3B82F6" strokeWidth="1.5" />
-                          <text x="100" y="124" fontSize="10" fontFamily="Arial, sans-serif" textAnchor="middle" fill="#1E40AF" fontWeight="bold">T</text>
-                        </svg>
+                      <div className="w-48 h-48 mx-auto mb-6 bg-blue-50 rounded-lg p-4 flex items-center justify-center">
+                        <ArticleRewriterIllustration />
                       </div>
                       <h3 className="text-xl font-semibold mb-2">Article Rewriter</h3>
                       <p className="max-w-md mx-auto">Enter your text and click "Process Article Rewriter" to transform your content. Choose from different modes like readability, tone, SEO, or unique to enhance your article while maintaining its core message.</p>
