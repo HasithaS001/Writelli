@@ -15,6 +15,11 @@ const ArticleRewriterPromo = () => {
     <section className="py-16 bg-white">
       <div className="container mx-auto px-4">
         <div className="flex flex-col lg:flex-row items-center gap-12">
+          {/* Visual Content - Using dynamic import with no SSR */}
+          <div className="lg:w-1/2 relative">
+            <ArticleRewriterVisual />
+          </div>
+          
           {/* Text Content */}
           <div className="lg:w-1/2 space-y-6">
             <div>
@@ -74,11 +79,6 @@ const ArticleRewriterPromo = () => {
                 </svg>
               </Link>
             </div>
-          </div>
-          
-          {/* Visual Content - Using dynamic import with no SSR */}
-          <div className="lg:w-1/2 relative">
-            <ArticleRewriterVisual />
           </div>
         </div>
       </div>
