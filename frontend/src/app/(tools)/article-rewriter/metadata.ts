@@ -1,10 +1,10 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Article Rewriter | Writelli - AI Writing Assistant',
+  title: 'Free AI Article Rewriter |(No required signup)',
   description: 'Rewrite your articles to improve readability, change tone, optimize for SEO, or make content unique while preserving meaning.',
   openGraph: {
-    title: 'Article Rewriter | Writelli - AI Writing Assistant',
+    title: 'Free AI Article Rewriter |(No required signup)',
     description: 'Rewrite your articles to improve readability, change tone, optimize for SEO, or make content unique while preserving meaning.',
     url: 'https://writelli.com/article-rewriter',
     siteName: 'Writelli',
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Article Rewriter | Writelli - AI Writing Assistant',
+    title: 'Free AI Article Rewriter |(No required signup)',
     description: 'Rewrite your articles to improve readability, change tone, optimize for SEO, or make content unique while preserving meaning.',
   }
 };
