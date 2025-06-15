@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Layout from '@/components/Layout';
 import { ToolType, TOOLS } from '@/types';
-import GoogleAnalytics from '@/components/GoogleAnalytics';
 
 export default function ToolsLayout({
   children,
@@ -39,11 +38,8 @@ export default function ToolsLayout({
   }, [pathname, getToolTypeFromPath]);
 
   return (
-    <>
-      <GoogleAnalytics />
-      <Layout>
-        {children}
-      </Layout>
-    </>
+    <Layout>
+      {children}
+    </Layout>
   );
 }
