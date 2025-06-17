@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Open_Sans } from "next/font/google";
 import "./globals.css";
-import { AuthProviderWrapper } from "@/components/auth/AuthProviderWrapper";
-import GoogleAnalytics from "@/components/GoogleAnalytics";
+import { AuthProviderWrapper } from '@/components/auth/AuthProviderWrapper';
+import GoogleAnalytics from '@/components/GoogleAnalytics';
+import PageTracker from '@/components/PageTracker';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -76,6 +77,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${openSans.variable} antialiased`}
       >
         <GoogleAnalytics />
+        <PageTracker />
         <AuthProviderWrapper>
           {children}
         </AuthProviderWrapper>

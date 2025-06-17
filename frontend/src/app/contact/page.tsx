@@ -114,7 +114,7 @@ export default function ContactPage() {
                   </svg>
                 </div>
                 <div className="ml-4">
-                  <p className="text-base text-black">61/58 Sampath uyana, Eldeniya, Kadawatha, Sri Lanka</p>
+                  <p className="text-base text-black">386/C Welangathuduwawaththa,Ambalanwaththa,Galle, Sri Lanka</p>
                 </div>
               </div>
             </div>

@@ -157,9 +157,39 @@ const TextProcessor: React.FC<TextProcessorProps> = ({ toolType }): React.ReactE
     setWordCount(words.length);
   }, [inputText]);
 
-  // Set initial mode based on tool type
   useEffect(() => {
-    // Set the default mode for the tool
+    // Initialize Google Analytics
+    const loadGoogleAnalytics = () => {
+      // Create and inject the GA4 script
+      const script = document.createElement('script');
+      script.src = `https://www.googletagmanager.com/gtag/js?id=G-LN4M0YTJFC`;
+      script.async = true;
+      document.head.appendChild(script);
+
+      // Initialize the dataLayer
+      window.dataLayer = window.dataLayer || [];
+      function gtag(...args: any[]) {
+        window.dataLayer.push(arguments);
+      }
+      window.gtag = gtag;
+
+      // Configure GA4
+      gtag('js', new Date());
+      gtag('config', 'G-LN4M0YTJFC', {
+        page_path: window.location.pathname,
+        send_page_view: true
+      });
+
+      // Track tool type as a custom event
+      gtag('event', 'tool_view', {
+        'tool_type': toolType
+      });
+    };
+
+    // Load GA4
+    loadGoogleAnalytics();
+
+    // Set initial mode based on tool type
     const modes = getToolModes(toolType);
     if (modes.length > 0) {
       if (toolType === 'article-rewriter') {
@@ -180,6 +210,15 @@ const TextProcessor: React.FC<TextProcessorProps> = ({ toolType }): React.ReactE
     setKeyword(''); // Reset keyword for article rewriter
     setTypingComplete(false);
     setShowCopyButton(false);
+
+    // Cleanup function
+    return () => {
+      // Remove the GA script when component unmounts
+      const gaScript = document.querySelector('script[src*="googletagmanager.com/gtag/js"]');
+      if (gaScript) {
+        gaScript.remove();
+      }
+    };
   }, [toolType]);
 
   const handleProcess = async () => {
@@ -189,6 +228,15 @@ const TextProcessor: React.FC<TextProcessorProps> = ({ toolType }): React.ReactE
       setError('Please enter some text to process');
       return;
     }
+
+    // Track tool usage event
+    window.gtag?.('event', 'tool_use', {
+      'event_category': 'engagement',
+      'event_label': toolType,
+      'tool_type': toolType,
+      'mode': mode,
+      'word_count': wordCount
+    });
     
     // Validate that a keyword is provided for SEO mode
     if (toolType === 'article-rewriter' && mode === 'seo' && !keyword.trim()) {
@@ -550,6 +598,14 @@ const TextProcessor: React.FC<TextProcessorProps> = ({ toolType }): React.ReactE
       .then(() => {
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
+
+        // Track copy event
+        window.gtag?.('event', 'copy_result', {
+          'event_category': 'engagement',
+          'event_label': toolType,
+          'tool_type': toolType,
+          'mode': mode
+        });
       })
       .catch(err => {
         console.error('Failed to copy text:', err);
