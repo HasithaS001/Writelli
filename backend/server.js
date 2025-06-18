@@ -38,14 +38,23 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'ok', message: 'Server is running' });
 });
 
+// Test endpoint
+app.post('/api/test', (req, res) => {
+  console.log('Test endpoint accessed', req.body);
+  res.status(200).json({ status: 'ok', message: 'Test endpoint working', received: req.body });
+});
+
 // Middleware - Configure CORS with specific options
 // Request logging middleware
 app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
   console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
   next();
 });
 
-// Configure CORS - Allow all origins temporarily for testing
+// Configure CORS
 app.use(cors());
 
 // Parse JSON bodies

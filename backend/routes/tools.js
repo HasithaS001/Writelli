@@ -594,6 +594,138 @@ Use your best judgment to make it feel 100% written by a real person — not AI.
   }
 });
 
-// Article Rewriter endpoint has been removed
+// Article Rewriter endpoint
+router.post('/article-rewriter', checkRateLimit, async (req, res) => {
+  try {
+    const { text, mode, keyword } = req.body;
+    
+    if (!text) {
+      return res.status(400).json({ error: 'Text is required' });
+    }
+    
+    // Strip HTML tags for processing
+    const plainText = stripHtml(text);
+    
+    let prompt;
+    switch (mode) {
+      case 'readability':
+        prompt = `You are a professional editor focused on improving text clarity and readability while maintaining a formal tone. Please rewrite the following text to be more clear, concise, and well-structured. Focus on:
+
+1. Using precise vocabulary and professional language
+2. Maintaining consistent formal tone throughout
+3. Organizing ideas logically with proper transitions
+4. Eliminating redundancy while preserving key information
+5. Ensuring proper paragraph structure and flow
+
+Text to rewrite: "${plainText}"`;
+        break;
+        
+      case 'tone':
+        if (!keyword) {
+          return res.status(400).json({ error: 'Tone selection is required' });
+        }
+        
+        switch (keyword) {
+          case 'academic':
+            prompt = `You are a scholarly writer with expertise in academic writing. Rewrite the following text in a rigorous academic style suitable for scholarly publications. Focus on:
+
+1. Using discipline-specific terminology and formal academic language
+2. Maintaining objective, evidence-based argumentation
+3. Employing precise citations and references where appropriate
+4. Structuring content with clear thesis statements and topic sentences
+5. Following academic writing conventions and style guidelines
+
+Text to rewrite: "${plainText}"`;
+            break;
+            
+          case 'business':
+            prompt = `You are a professional business writer. Rewrite the following text in a clear, authoritative business style suitable for corporate communications. Focus on:
+
+1. Using concise, action-oriented business language
+2. Maintaining professional tone and executive-level vocabulary
+3. Emphasizing key metrics and business outcomes
+4. Structuring content for busy professionals
+5. Following business writing best practices
+
+Text to rewrite: "${plainText}"`;
+            break;
+            
+          case 'technical':
+            prompt = `You are a technical writer specializing in detailed documentation. Rewrite the following text in a precise, technical style. Focus on:
+
+1. Using industry-standard technical terminology
+2. Maintaining clarity in complex technical explanations
+3. Providing specific, actionable information
+4. Organizing content in a logical, systematic way
+5. Following technical writing standards
+
+Text to rewrite: "${plainText}"`;
+            break;
+            
+          case 'formal':
+            prompt = `You are an expert in formal writing. Rewrite the following text in a sophisticated, elevated style suitable for formal documents. Focus on:
+
+1. Using refined, elevated vocabulary
+2. Maintaining consistent formal tone
+3. Employing complex yet clear sentence structures
+4. Following formal writing conventions
+5. Avoiding any colloquialisms or informal language
+
+Text to rewrite: "${plainText}"`;
+            break;
+            
+          default:
+            return res.status(400).json({ error: 'Invalid tone selection' });
+        }
+        break;
+        
+      case 'seo':
+        if (!keyword) {
+          return res.status(400).json({ error: 'Keyword is required for SEO mode' });
+        }
+        prompt = `You are an SEO content specialist. Rewrite the following text to optimize it for search engines while maintaining professional tone and readability. Focus on:
+
+1. Naturally incorporating the keyword "${keyword}" at an optimal density
+2. Using relevant semantic variations and LSI keywords
+3. Maintaining clear heading structure and paragraph organization
+4. Ensuring professional, authoritative tone
+5. Preserving readability and user value
+
+Text to rewrite: "${plainText}"`;
+        break;
+        
+      case 'unique':
+        prompt = `You are a professional content writer tasked with rewriting this text to be completely unique while maintaining high standards of formal writing. Focus on:
+
+1. Restructuring sentences and paragraphs while preserving meaning
+2. Using sophisticated synonyms and alternative phrasings
+3. Maintaining professional tone and academic style
+4. Ensuring logical flow and coherent organization
+5. Preserving technical accuracy and precision
+
+Text to rewrite: "${plainText}"`;
+        break;
+        
+      default:
+        return res.status(400).json({ error: 'Invalid mode specified' });
+    }
+    
+    const result = await generateContent(prompt);
+    
+    // Clean up the output - remove any markdown formatting or unnecessary prefixes
+    const cleanedResult = result
+      .replace(/^(?:Here's|Here is|The rewritten|Rewritten)\s+(?:the|your)?\s+(?:text|version|content)[:\s]*/i, '')
+      .replace(/^[\*\-]\s*/gm, '')
+      .trim();
+    
+    res.json({ rewrittenText: cleanedResult });
+  } catch (error) {
+    console.error('Article rewriter error:', error);
+    res.status(500).json({ 
+      error: error.message || 'An error occurred while rewriting the text',
+      details: 'Please try again with different text or contact support.'
+    });
+  }
+});
 
 module.exports = router;

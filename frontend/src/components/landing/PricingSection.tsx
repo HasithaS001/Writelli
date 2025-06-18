@@ -37,7 +37,7 @@ const monthlyPlans = [
       'Multi-language Translator',
       'Upload unlimited URLs and DOCX files',
     ],
-    cta: 'Start Free Trial',
+    cta: 'Join Waitlist',
     popular: true,
   },
 ];
@@ -92,7 +92,7 @@ const yearlyPlans = [
       'Upload unlimited URLs and DOCX files',
       '2 months free with annual billing',
     ],
-    cta: 'Start Free Trial',
+    cta: 'Join Waitlist',
     popular: true,
   },
 ];
@@ -112,14 +112,14 @@ const PricingSection = ({
   const handlePlanSelection = (plan: typeof pricingPlans[0], index: number) => {
     setIsLoading(index);
     
-    // For Pro plan with "Start Free Trial" CTA
-    if (plan.name === 'Pro' && plan.cta === 'Start Free Trial') {
-      // Redirect to checkout URL
-      window.location.href = "https://writelli.lemonsqueezy.com/buy/59d7b5c0-6485-4860-bd75-d608d2976a10";
-    } else {
-      // For Free plan
-      router.push('/auth/signup');
+    // For Pro plan, redirect to waitlist
+    if (plan.name === 'Pro') {
+      router.push('/waitlist');
+      return;
     }
+    
+    // For Free plan
+    router.push('/auth/signup');
   };
 
   return (
@@ -166,7 +166,7 @@ const PricingSection = ({
             >
               {plan.popular && (
                 <div className="absolute top-0 right-0 bg-[#4169e2] text-white py-1 px-4 text-sm font-medium rounded-bl-lg">
-                  Start your free trial today
+                  Join Waitlist today
                 </div>
               )}
               <div className="p-8">

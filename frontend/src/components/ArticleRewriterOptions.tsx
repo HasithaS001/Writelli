@@ -10,12 +10,19 @@ interface ArticleRewriterOptionsProps {
   onKeywordChange: (keyword: string) => void;
 }
 
+const toneOptions = [
+  { id: 'academic', label: 'Academic', description: 'Scholarly and research-oriented style' },
+  { id: 'business', label: 'Business', description: 'Professional and corporate tone' },
+  { id: 'technical', label: 'Technical', description: 'Precise and detailed technical writing' },
+  { id: 'formal', label: 'Formal', description: 'Highly formal and sophisticated language' }
+];
+
 const ArticleRewriterOptions: React.FC<ArticleRewriterOptionsProps> = ({
   selectedMode,
   onModeChange,
   keyword,
   onKeywordChange
-}) => {
+}: ArticleRewriterOptionsProps) => {
   return (
     <div className="flex flex-col space-y-4">
       <div className="text-sm font-medium text-gray-700 mb-2">Rewrite goal:</div>
@@ -45,8 +52,28 @@ const ArticleRewriterOptions: React.FC<ArticleRewriterOptionsProps> = ({
             className="h-4 w-4 text-blue-600"
           />
           <label htmlFor="tone" className="text-sm font-medium text-gray-700 cursor-pointer">
-            Change tone (select tone)
+            Change tone
           </label>
+          {selectedMode === 'tone' && (
+            <div className="ml-6 mt-2 space-y-2">
+              {toneOptions.map((option) => (
+                <div key={option.id} className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    id={`tone-${option.id}`}
+                    name="toneType"
+                    checked={keyword === option.id}
+                    onChange={() => onKeywordChange(option.id)}
+                    className="h-4 w-4 text-blue-600"
+                  />
+                  <label htmlFor={`tone-${option.id}`} className="text-sm text-gray-600 cursor-pointer">
+                    <span className="font-medium">{option.label}</span>
+                    <span className="text-gray-500 ml-1">- {option.description}</span>
+                  </label>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
         
         <div className="flex flex-col space-y-2">

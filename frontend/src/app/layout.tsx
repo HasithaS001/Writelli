@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Open_Sans } from "next/font/google";
+import Script from 'next/script';
 import "./globals.css";
 import { AuthProviderWrapper } from '@/components/auth/AuthProviderWrapper';
-import GoogleAnalytics from '@/components/GoogleAnalytics';
-import PageTracker from '@/components/PageTracker';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -73,11 +72,24 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-LN4M0YTJFC"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            window.gtag = gtag;
+            gtag('js', new Date());
+            gtag('config', 'G-LN4M0YTJFC');
+          `}
+        </Script>
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${openSans.variable} antialiased`}
       >
-        <GoogleAnalytics />
-        <PageTracker />
         <AuthProviderWrapper>
           {children}
         </AuthProviderWrapper>

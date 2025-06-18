@@ -1,6 +1,6 @@
 // Environment variables for the frontend
 // Normalize the API URL
-const rawUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const rawUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 // Remove trailing slashes and /api suffix
 const normalizeUrl = (url: string) => {

@@ -34,108 +34,78 @@ import {
 async function apiRequest<T>(endpoint: string, data: any): Promise<T | null> {
   // Set a timeout for API requests (30 seconds)
   const TIMEOUT_MS = 30000;
-  
-  // Create an AbortController to handle timeouts
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
-  
+
   try {
-    console.log(`Making API request to ${endpoint}`);
+    const baseUrl = 'http://localhost:5000';
+    const url = `${baseUrl}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+    console.log('Making request to:', url);
+    console.log('Request data:', data);
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': '*/*',
+      },
+      mode: 'cors',
+      body: JSON.stringify(data)
+    });
     
+    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+    console.log('Response status:', response.status);
+    clearTimeout(timeoutId);
+    console.log('Response received:', response.status, response.statusText);
+
+    if (response.status === 404) {
+      console.warn(`API endpoint ${endpoint} not found, using fallback response`);
+      return null;
+    }
+
     try {
-      // Ensure proper URL construction
-      const baseUrl = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
-      const apiPath = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-      const url = `${baseUrl}/api${apiPath}`;
-      console.log('Making request to:', url);
-      
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-        signal: controller.signal,
-      });
-    
-      // Clear the timeout since the request completed
-      clearTimeout(timeoutId);
-      console.log(`API response status: ${response.status}`);
-
-      // Handle 404 Not Found errors before trying to parse JSON
-      if (response.status === 404) {
-        console.warn(`API endpoint ${endpoint} not found, using fallback response`);
-        return null;
-      }
-
-      // Try to parse the response as JSON
-      let responseData;
-      try {
-        responseData = await response.json();
-      } catch (jsonError) {
-        console.error('Error parsing JSON response:', jsonError);
-        return null; // Return null to trigger fallback
-      }
+      const responseData = await response.json();
 
       if (!response.ok) {
         const { error, code } = responseData || {};
-        
-        // Only use fallbacks for specific error cases
         if (code === 'QUOTA_EXCEEDED' || code === 'TIMEOUT' || 
             code === 'SERVICE_UNAVAILABLE' || code === 'INVALID_API_KEY') {
           console.warn(`${error}, using fallback response`);
           return null;
         }
-        
-        // For other errors, throw to be handled by the caller
         throw new Error(error || `Error ${response.status}: ${response.statusText}`);
       }
 
-      // Check if the response has the expected data
       if (!responseData || typeof responseData !== 'object') {
         throw new Error('Invalid response format');
       }
 
       return responseData as T;
-    } catch (error) {
-      console.error('API request error:', error);
-      
-      // Only use fallback for network errors or timeouts
-      if (error instanceof TypeError || 
-          (error instanceof DOMException && error.name === 'AbortError')) {
-        console.warn('Network or timeout error, using fallback');
-        return null;
-      }
-      
-      // For other errors, throw to be handled by the caller
-      throw error
+    } catch (jsonError) {
+      console.error('Error parsing JSON response:', jsonError);
+      return null;
     }
   } catch (error) {
-    // Clear the timeout to prevent memory leaks
     clearTimeout(timeoutId);
-    
-    // Handle AbortController timeout
-    if (error instanceof DOMException && error.name === 'AbortError') {
-      console.warn('Request timed out after', TIMEOUT_MS/1000, 'seconds');
-      return null as any; // Return null to trigger fallback
-    }
-    
-    // Handle network errors or other exceptions
+    console.error('API request error:', error);
+
     if (error instanceof TypeError || 
-        (error instanceof Error && 
-         (error.message.includes('fetch') || 
+        (error instanceof DOMException && error.name === 'AbortError') ||
+        (error instanceof Error && (
+          error.message.includes('fetch') || 
           error.message.includes('Failed to fetch') ||
           error.message.includes('network') ||
           error.message.includes('Network') ||
           error.message.includes('CORS') ||
-          error.message.includes('Content Security Policy')))) {
-      console.error('Network Error:', error);
-      return null as any; // Return null to trigger fallback
+          error.message.includes('Content Security Policy')
+        ))) {
+      console.warn('Network or timeout error, using fallback');
+      return null;
     }
-    
+
     // For any other error, return null to trigger fallbacks
     console.error('Unhandled API error:', error);
-    return null as any; // Return null to trigger fallback
+    return null;
   }
 }
 
@@ -440,40 +410,17 @@ export async function rewriteArticle(text: string, mode: ArticleRewriterMode = '
     // Use our backend API route that calls Gemini API
     console.log('Using Gemini API via proxy for', mode, 'mode');
     
-    const response = await fetch('/api/gemini-rewrite', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text, mode, keyword })
+    const data = await apiRequest<ArticleRewriterResponse>('/tools/article-rewriter', {
+      text,
+      mode,
+      keyword
     });
     
-    if (!response.ok) {
-      // Try to get error details from the response
-      let errorMessage = `Error ${response.status}: ${response.statusText}`;
-      try {
-        const errorData = await response.json();
-        if (errorData && errorData.error) {
-          errorMessage = errorData.error;
-          if (errorData.details) {
-            errorMessage += ` - ${errorData.details}`;
-          }
-        }
-      } catch (e) {
-        // If we can't parse the error as JSON, just use the status text
-        console.error('Failed to parse error response:', e);
-      }
-      
-      throw new Error(errorMessage);
+    if (!data) {
+      throw new Error('Failed to get response from API');
     }
     
-    // Parse the successful response
-    const data = await response.json();
-    
-    if (data && data.rewrittenText) {
-      return { rewrittenText: data.rewrittenText };
-    } else {
-      console.error('Invalid response format from API:', data);
-      throw new Error('Invalid response format from API');
-    }
+    return data;
   } catch (error: any) {
     console.error('Article Rewriter API error:', error);
     // Return a fallback response with the error message
