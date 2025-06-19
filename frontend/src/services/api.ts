@@ -38,23 +38,15 @@ async function apiRequest<T>(endpoint: string, data: any): Promise<T | null> {
   const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
   try {
-    // Determine if we're running in a browser environment
-    const isBrowser = typeof window !== 'undefined';
+    // Always use the local API proxy route
+    // This ensures all requests work on all devices
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
     
-    // Get the current hostname in browser
-    const hostname = isBrowser ? window.location.hostname : '';
+    // Extract the tool name from the endpoint
+    const toolPath = endpoint.replace(/^\/?(tools\/)?/, '');
     
-    // Determine the base URL based on environment
-    let url;
-    
-    // For local development, use localhost:5000
-    if (isBrowser && (hostname === 'localhost' || hostname === '127.0.0.1')) {
-      url = `http://localhost:5000${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
-    } else {
-      // For production, use the current origin with /api prefix
-      const origin = isBrowser ? window.location.origin : '';
-      url = `${origin}/api${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
-    }
+    // Construct the URL to our Next.js API proxy route
+    const url = `${origin}/api/tools/${toolPath}`;
     console.log('Making request to:', url);
     console.log('Request data:', data);
 
@@ -129,7 +121,7 @@ async function apiRequest<T>(endpoint: string, data: any): Promise<T | null> {
  */
 export async function checkGrammar(text: string, mode: GrammarCheckerMode = 'standard'): Promise<GrammarCheckerResponse | null> {
   try {
-    return await apiRequest<GrammarCheckerResponse>('/tools/grammar-checker', { text, mode });
+    return await apiRequest<GrammarCheckerResponse>('grammar-checker', { text, mode });
   } catch (error) {
     console.warn('Grammar checker API error, using fallback:', error);
     // Always return fallback response for any error
@@ -142,7 +134,7 @@ export async function checkGrammar(text: string, mode: GrammarCheckerMode = 'sta
  */
 export async function checkReadability(text: string): Promise<ReadabilityCheckerResponse | null> {
   try {
-    return await apiRequest<ReadabilityCheckerResponse>('/tools/readability-checker', { text });
+    return await apiRequest<ReadabilityCheckerResponse>('readability-checker', { text });
   } catch (error) {
     console.warn('Readability checker API error, using fallback:', error);
     // Always return fallback response for any error
@@ -155,7 +147,7 @@ export async function checkReadability(text: string): Promise<ReadabilityChecker
  */
 export async function paraphraseText(text: string, mode: ParaphraserMode = 'standard'): Promise<ParaphraserResponse | null> {
   try {
-    return await apiRequest<ParaphraserResponse>('/tools/paraphraser', { text, mode });
+    return await apiRequest<ParaphraserResponse>('paraphraser', { text, mode });
   } catch (error) {
     console.warn('Paraphraser API error, using fallback:', error);
     // Always return fallback response for any error
@@ -168,7 +160,7 @@ export async function paraphraseText(text: string, mode: ParaphraserMode = 'stan
  */
 export async function summarizeText(text: string, mode: SummarizerMode = 'bullet'): Promise<SummarizerResponse | null> {
   try {
-    return await apiRequest<SummarizerResponse>('/tools/summarizer', { text, mode });
+    return await apiRequest<SummarizerResponse>('summarizer', { text, mode });
   } catch (error) {
     console.warn('Summarizer API error, using fallback:', error);
     // Always return fallback response for any error
@@ -181,7 +173,7 @@ export async function summarizeText(text: string, mode: SummarizerMode = 'bullet
  */
 export async function translateText(text: string, targetLanguage: string): Promise<TranslatorResponse | null> {
   try {
-    return await apiRequest<TranslatorResponse>('/tools/translator', { text, targetLanguage });
+    return await apiRequest<TranslatorResponse>('translator', { text, targetLanguage });
   } catch (error) {
     console.warn('Translator API error, using fallback:', error);
     // Always return fallback response for any error
@@ -194,7 +186,7 @@ export async function translateText(text: string, targetLanguage: string): Promi
  */
 export async function convertTone(text: string, tone: ToneConverterMode): Promise<ToneConverterResponse | null> {
   try {
-    return await apiRequest<ToneConverterResponse>('/tools/tone-converter', { text, tone });
+    return await apiRequest<ToneConverterResponse>('tone-converter', { text, tone });
   } catch (error) {
     console.warn('Tone converter API error, using fallback:', error);
     // Always return fallback response for any error
@@ -207,7 +199,7 @@ export async function convertTone(text: string, tone: ToneConverterMode): Promis
  */
 export async function humanizeText(text: string, mode: HumanizerMode = 'natural'): Promise<HumanizerResponse | null> {
   try {
-    return await apiRequest<HumanizerResponse>('/tools/humanizer', { text, mode });
+    return await apiRequest<HumanizerResponse>('humanizer', { text, mode });
   } catch (error) {
     console.warn('Humanizer API error, using fallback:', error);
     return getFallbackHumanizerResponse(text);
