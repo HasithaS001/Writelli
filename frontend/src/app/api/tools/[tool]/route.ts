@@ -3,14 +3,12 @@ import { NextRequest, NextResponse } from 'next/server';
 // Backend API URL - change this to your actual backend URL
 const BACKEND_API_URL = 'https://backend-yd4nj.ondigitalocean.app';
 
-type Params = { params: { tool: string } };
+// Define the params type for the route handler
+type RouteParams = { params: { tool: string } };
 
-export async function POST(
-  request: NextRequest,
-  context: Params
-) {
-  const { tool } = context.params;
+export async function POST(request: NextRequest, context: RouteParams) {
   try {
+    const tool = context.params.tool;
     const data = await request.json();
     
     // Log the request for debugging
@@ -34,10 +32,10 @@ export async function POST(
     // Return the backend response
     const responseData = await response.json();
     return NextResponse.json(responseData);
-  } catch (error) {
+  } catch (error: any) {
     console.error('API proxy error:', error);
     return NextResponse.json(
-      { error: 'Internal Server Error', details: (error as Error).message },
+      { error: 'Internal Server Error', details: error?.message || 'Unknown error' },
       { status: 500 }
     );
   }
