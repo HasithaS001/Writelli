@@ -38,7 +38,8 @@ async function apiRequest<T>(endpoint: string, data: any): Promise<T | null> {
   const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
   try {
-    const baseUrl = 'http://localhost:5000';
+    // Use the configured API_URL from env.ts instead of hardcoded localhost
+    const baseUrl = API_URL || 'http://localhost:5000';
     const url = `${baseUrl}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
     console.log('Making request to:', url);
     console.log('Request data:', data);
