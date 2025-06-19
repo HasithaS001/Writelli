@@ -38,26 +38,22 @@ async function apiRequest<T>(endpoint: string, data: any): Promise<T | null> {
   const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
   try {
-    // Debug environment information
-    console.log('Environment:', process.env.NODE_ENV);
-    console.log('API_URL from env:', API_URL);
-    console.log('NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
+    // Determine if we're running in a browser environment
+    const isBrowser = typeof window !== 'undefined';
     
-    // Use the configured API_URL from env.ts instead of hardcoded localhost
-    const baseUrl = API_URL || 'http://localhost:5000';
-    console.log('Using baseUrl:', baseUrl);
+    // Get the current hostname in browser
+    const hostname = isBrowser ? window.location.hostname : '';
     
-    // Construct the full URL based on whether API_URL is relative or absolute
+    // Determine the base URL based on environment
     let url;
-    if (baseUrl.startsWith('/')) {
-      // For relative URLs like '/api', use the current origin
-      const origin = typeof window !== 'undefined' ? window.location.origin : '';
-      url = `${origin}${baseUrl}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
-      console.log('Using relative URL with origin:', origin);
+    
+    // For local development, use localhost:5000
+    if (isBrowser && (hostname === 'localhost' || hostname === '127.0.0.1')) {
+      url = `http://localhost:5000${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
     } else {
-      // For absolute URLs like 'http://localhost:5000'
-      url = `${baseUrl}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
-      console.log('Using absolute URL');
+      // For production, use the current origin with /api prefix
+      const origin = isBrowser ? window.location.origin : '';
+      url = `${origin}/api${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
     }
     console.log('Making request to:', url);
     console.log('Request data:', data);
