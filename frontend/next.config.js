@@ -31,12 +31,12 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value: `
               default-src 'self';
-              script-src 'self' 'unsafe-inline' 'unsafe-eval';
+              script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com;
               style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-              img-src 'self' data: blob:;
+              img-src 'self' data: blob: https://www.google-analytics.com https://www.googletagmanager.com;
               font-src 'self' data: https://fonts.gstatic.com;
-              connect-src 'self' http://localhost:* https://*.stripe.com https://*.supabase.co https://*.supabase.in https://www.facebook.com https://backend-yd4nj.ondigitalocean.app;
-              frame-src 'self';
+              connect-src 'self' http://localhost:* https://*.stripe.com https://*.supabase.co https://*.supabase.in https://www.facebook.com https://backend-yd4nj.ondigitalocean.app https://www.google-analytics.com https://analytics.google.com https://kxejkljlfpipavbqvxpm.supabase.co;
+              frame-src 'self' https://*.stripe.com https://*.supabase.co;
             `.replace(/\s+/g, ' ').trim(),
           },
         ],
