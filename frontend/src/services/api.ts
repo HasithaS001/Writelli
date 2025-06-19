@@ -38,8 +38,14 @@ async function apiRequest<T>(endpoint: string, data: any): Promise<T | null> {
   const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
   try {
-    // Use the configured API_URL from env.ts
-    const baseUrl = API_URL;
+    // Debug environment information
+    console.log('Environment:', process.env.NODE_ENV);
+    console.log('API_URL from env:', API_URL);
+    console.log('NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
+    
+    // Use the configured API_URL from env.ts instead of hardcoded localhost
+    const baseUrl = API_URL || 'http://localhost:5000';
+    console.log('Using baseUrl:', baseUrl);
     
     // Construct the full URL based on whether API_URL is relative or absolute
     let url;
@@ -47,9 +53,11 @@ async function apiRequest<T>(endpoint: string, data: any): Promise<T | null> {
       // For relative URLs like '/api', use the current origin
       const origin = typeof window !== 'undefined' ? window.location.origin : '';
       url = `${origin}${baseUrl}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+      console.log('Using relative URL with origin:', origin);
     } else {
       // For absolute URLs like 'http://localhost:5000'
       url = `${baseUrl}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+      console.log('Using absolute URL');
     }
     console.log('Making request to:', url);
     console.log('Request data:', data);

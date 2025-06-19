@@ -3,6 +3,12 @@ import { Geist, Geist_Mono, Open_Sans } from "next/font/google";
 import Script from 'next/script';
 import "./globals.css";
 import { AuthProviderWrapper } from '@/components/auth/AuthProviderWrapper';
+import dynamic from 'next/dynamic';
+
+// Import ApiDebugger dynamically to avoid SSR issues
+const ApiDebugger = dynamic(() => import('@/components/ApiDebugger'), {
+  ssr: false,
+});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -106,6 +112,7 @@ export default function RootLayout({
       >
         <AuthProviderWrapper>
           {children}
+          <ApiDebugger />
         </AuthProviderWrapper>
       </body>
     </html>
