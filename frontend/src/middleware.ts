@@ -1,14 +1,23 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { getCSP } from './app/csp'
 
 export function middleware(request: NextRequest) {
   // Get the response
   const response = NextResponse.next()
 
-  // Add security headers
-  response.headers.set('Content-Security-Policy', getCSP())
-  response.headers.set('X-Frame-Options', 'DENY')
+  // Add security headers with very permissive CSP for development and debugging
+  const csp = `
+    default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;
+    script-src * 'unsafe-inline' 'unsafe-eval';
+    connect-src * 'unsafe-inline';
+    img-src * data: blob: 'unsafe-inline';
+    frame-src *;
+    style-src * 'unsafe-inline';
+    font-src * data:;
+  `.replace(/\s+/g, ' ').trim()
+  
+  response.headers.set('Content-Security-Policy', csp)
+  response.headers.set('X-Frame-Options', 'SAMEORIGIN')
   response.headers.set('X-Content-Type-Options', 'nosniff')
   response.headers.set('Referrer-Policy', 'origin-when-cross-origin')
 

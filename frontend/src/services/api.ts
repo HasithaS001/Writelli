@@ -38,21 +38,12 @@ async function apiRequest<T>(endpoint: string, data: any): Promise<T | null> {
   const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
   try {
-    // Debug information about environment
-    console.log('Environment info:', { 
-      apiUrl: API_URL, 
-      nodeEnv: process.env.NODE_ENV,
-      windowLocation: typeof window !== 'undefined' ? window.location.href : 'SSR',
-      endpoint
-    });
+    // Use environment variable or fallback to production API URL
+    const baseUrl = process.env.NODE_ENV === 'development' 
+      ? 'http://localhost:5000'
+      : 'https://backend-yd4nj.ondigitalocean.app';
     
-    // IMPORTANT: Always use the local Next.js API routes to avoid CORS issues
-    // This will proxy the request through Next.js to the backend
-    const origin = typeof window !== 'undefined' ? window.location.origin : '';
-    const url = `${origin}/api${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
-    
-    // Debug the constructed URL
-    console.log('API Request URL:', url);
+    const url = `${baseUrl}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
     console.log('Making request to:', url);
     console.log('Request data:', data);
 
@@ -61,6 +52,7 @@ async function apiRequest<T>(endpoint: string, data: any): Promise<T | null> {
       headers: {
         'Content-Type': 'application/json',
         'Accept': '*/*',
+        'Origin': typeof window !== 'undefined' ? window.location.origin : 'https://writelli.com',
       },
       mode: 'cors',
       body: JSON.stringify(data)
@@ -127,7 +119,7 @@ async function apiRequest<T>(endpoint: string, data: any): Promise<T | null> {
  */
 export async function checkGrammar(text: string, mode: GrammarCheckerMode = 'standard'): Promise<GrammarCheckerResponse | null> {
   try {
-    return await apiRequest<GrammarCheckerResponse>('/tools/grammar-checker', { text, mode });
+    return await apiRequest<GrammarCheckerResponse>('/api/tools/grammar-checker', { text, mode });
   } catch (error) {
     console.warn('Grammar checker API error, using fallback:', error);
     // Always return fallback response for any error
@@ -140,7 +132,7 @@ export async function checkGrammar(text: string, mode: GrammarCheckerMode = 'sta
  */
 export async function checkReadability(text: string): Promise<ReadabilityCheckerResponse | null> {
   try {
-    return await apiRequest<ReadabilityCheckerResponse>('/tools/readability-checker', { text });
+    return await apiRequest<ReadabilityCheckerResponse>('/api/tools/readability-checker', { text });
   } catch (error) {
     console.warn('Readability checker API error, using fallback:', error);
     // Always return fallback response for any error
@@ -153,7 +145,7 @@ export async function checkReadability(text: string): Promise<ReadabilityChecker
  */
 export async function paraphraseText(text: string, mode: ParaphraserMode = 'standard'): Promise<ParaphraserResponse | null> {
   try {
-    return await apiRequest<ParaphraserResponse>('/tools/paraphraser', { text, mode });
+    return await apiRequest<ParaphraserResponse>('/api/tools/paraphraser', { text, mode });
   } catch (error) {
     console.warn('Paraphraser API error, using fallback:', error);
     // Always return fallback response for any error
@@ -166,7 +158,7 @@ export async function paraphraseText(text: string, mode: ParaphraserMode = 'stan
  */
 export async function summarizeText(text: string, mode: SummarizerMode = 'bullet'): Promise<SummarizerResponse | null> {
   try {
-    return await apiRequest<SummarizerResponse>('/tools/summarizer', { text, mode });
+    return await apiRequest<SummarizerResponse>('/api/tools/summarizer', { text, mode });
   } catch (error) {
     console.warn('Summarizer API error, using fallback:', error);
     // Always return fallback response for any error
@@ -179,7 +171,7 @@ export async function summarizeText(text: string, mode: SummarizerMode = 'bullet
  */
 export async function translateText(text: string, targetLanguage: string): Promise<TranslatorResponse | null> {
   try {
-    return await apiRequest<TranslatorResponse>('/tools/translator', { text, targetLanguage });
+    return await apiRequest<TranslatorResponse>('/api/tools/translator', { text, targetLanguage });
   } catch (error) {
     console.warn('Translator API error, using fallback:', error);
     // Always return fallback response for any error
@@ -192,7 +184,7 @@ export async function translateText(text: string, targetLanguage: string): Promi
  */
 export async function convertTone(text: string, tone: ToneConverterMode): Promise<ToneConverterResponse | null> {
   try {
-    return await apiRequest<ToneConverterResponse>('/tools/tone-converter', { text, tone });
+    return await apiRequest<ToneConverterResponse>('/api/tools/tone-converter', { text, tone });
   } catch (error) {
     console.warn('Tone converter API error, using fallback:', error);
     // Always return fallback response for any error
@@ -205,7 +197,7 @@ export async function convertTone(text: string, tone: ToneConverterMode): Promis
  */
 export async function humanizeText(text: string, mode: HumanizerMode = 'natural'): Promise<HumanizerResponse | null> {
   try {
-    return await apiRequest<HumanizerResponse>('/tools/humanizer', { text, mode });
+    return await apiRequest<HumanizerResponse>('/api/tools/humanizer', { text, mode });
   } catch (error) {
     console.warn('Humanizer API error, using fallback:', error);
     return getFallbackHumanizerResponse(text);
@@ -418,17 +410,27 @@ function mockArticleRewriterAPI(text: string, mode: ArticleRewriterMode, keyword
 
 export async function rewriteArticle(text: string, mode: ArticleRewriterMode = 'readability', keyword?: string): Promise<ArticleRewriterResponse | null> {
   try {
-    // Use the mock implementation for now
-    // TODO: Replace with actual API call when backend is ready
-    // return await apiRequest<ArticleRewriterResponse>('/tools/article-rewriter', { text, mode, keyword });
+    console.log('Calling Article Rewriter API with mode:', mode, 'and keyword:', keyword);
     
-    // For development, use a mock implementation
-    return mockArticleRewriterAPI(text, mode, keyword);
+    // Use our backend API route that calls Gemini API
+    console.log('Using Gemini API via proxy for', mode, 'mode');
+    
+    const data = await apiRequest<ArticleRewriterResponse>('/api/tools/article-rewriter', {
+      text,
+      mode,
+      keyword
+    });
+    
+    if (!data) {
+      throw new Error('Failed to get response from API');
+    }
+    
+    return data;
   } catch (error: any) {
     console.error('Article Rewriter API error:', error);
     // Return a fallback response with the error message
     return {
-      rewrittenText: `Error: Unable to rewrite article. Please try again. (${error.message || 'Unknown error'})`
+      rewrittenText: `Error: Unable to rewrite text using Gemini API. Please check your API key configuration and try again. (${error.message || 'Unknown error'})`
     };
   }
 }
