@@ -46,19 +46,10 @@ async function apiRequest<T>(endpoint: string, data: any): Promise<T | null> {
       endpoint
     });
     
-    // Use the configured API_URL from env.ts
-    const baseUrl = API_URL;
-    
-    // Construct the full URL based on whether API_URL is relative or absolute
-    let url;
-    if (baseUrl.startsWith('/')) {
-      // For relative URLs like '/api', use the current origin
-      const origin = typeof window !== 'undefined' ? window.location.origin : '';
-      url = `${origin}${baseUrl}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
-    } else {
-      // For absolute URLs like 'http://localhost:5000'
-      url = `${baseUrl}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
-    }
+    // IMPORTANT: Always use the local Next.js API routes to avoid CORS issues
+    // This will proxy the request through Next.js to the backend
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const url = `${origin}/api${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
     
     // Debug the constructed URL
     console.log('API Request URL:', url);
