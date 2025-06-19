@@ -3,12 +3,14 @@ import { NextRequest, NextResponse } from 'next/server';
 // Backend API URL - change this to your actual backend URL
 const BACKEND_API_URL = 'https://backend-yd4nj.ondigitalocean.app';
 
+type Params = { params: { tool: string } };
+
 export async function POST(
   request: NextRequest,
-  { params }: { params: { tool: string } }
+  context: Params
 ) {
+  const { tool } = context.params;
   try {
-    const tool = params.tool;
     const data = await request.json();
     
     // Log the request for debugging
