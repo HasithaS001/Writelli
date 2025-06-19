@@ -1,9 +1,12 @@
+"use client";
+
 import React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 
 const Footer = ({ variant = 'light' }: { variant?: 'light' | 'dark' }) => {
   const router = useRouter();
+  const pathname = usePathname();
   const isLight = variant === 'light';
   return (
     <footer className={`${isLight ? 'bg-gray-100 text-gray-700' : 'bg-gray-900 text-gray-300'}`}>

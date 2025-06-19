@@ -728,4 +728,91 @@ Text to rewrite: "${plainText}"`;
   }
 });
 
+// Article Rewriter
+router.post('/article-rewriter', checkRateLimit, async (req, res) => {
+  try {
+    const { text, mode, keyword } = req.body;
+    
+    if (!text) {
+      return res.status(400).json({ error: 'Text is required' });
+    }
+
+    // Strip HTML tags for processing
+    const plainText = stripHtml(text);
+
+    let prompt;
+    switch (mode) {
+      case 'readability':
+        prompt = `You are an expert content editor. Rewrite the following text to improve its readability while maintaining professional standards. Focus on:
+
+1. Using clear, concise language
+2. Breaking down complex sentences
+3. Improving flow and coherence
+4. Maintaining professional tone
+5. Enhancing overall clarity
+
+Text to rewrite: "${plainText}"`;
+        break;
+
+      case 'professional':
+        prompt = `You are a professional content writer. Rewrite the following text to enhance its professional tone. Focus on:
+
+1. Using formal business language
+2. Maintaining authoritative tone
+3. Incorporating industry terminology
+4. Ensuring logical structure
+5. Following professional writing standards
+
+Text to rewrite: "${plainText}"`;
+        break;
+
+      case 'seo':
+        if (!keyword) {
+          return res.status(400).json({ error: 'Keyword is required for SEO mode' });
+        }
+        prompt = `You are an SEO content specialist. Rewrite the following text to optimize it for search engines while maintaining professional tone and readability. Focus on:
+
+1. Naturally incorporating the keyword "${keyword}" at an optimal density
+2. Using relevant semantic variations and LSI keywords
+3. Maintaining clear heading structure
+4. Ensuring professional tone
+5. Preserving readability
+
+Text to rewrite: "${plainText}"`;
+        break;
+
+      case 'unique':
+        prompt = `You are a professional content writer. Rewrite the following text to be completely unique while maintaining high quality. Focus on:
+
+1. Restructuring sentences while preserving meaning
+2. Using sophisticated synonyms and alternative phrasings
+3. Maintaining professional tone
+4. Ensuring logical flow
+5. Preserving technical accuracy
+
+Text to rewrite: "${plainText}"`;
+        break;
+
+      default:
+        return res.status(400).json({ error: 'Invalid mode specified' });
+    }
+
+    const result = await generateContent(prompt);
+
+    // Clean up the output
+    const cleanedResult = result
+      .replace(/^(?:Here's|Here is|The rewritten|Rewritten)\s+(?:the|your)?\s+(?:text|version|content)[:\s]*/i, '')
+      .replace(/^[\*\-]\s*/gm, '')
+      .trim();
+
+    res.json({ rewrittenText: cleanedResult });
+  } catch (error) {
+    console.error('Article rewriter error:', error);
+    res.status(500).json({ 
+      error: error.message || 'An error occurred while rewriting the text',
+      details: 'Please try again with different text or contact support.'
+    });
+  }
+});
+
 module.exports = router;

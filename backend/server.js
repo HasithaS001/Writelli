@@ -58,7 +58,16 @@ app.use((req, res, next) => {
 app.use(cors());
 
 // Parse JSON bodies
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '10mb', strict: false }));
+
+// Add body parser error handling
+app.use((err, req, res, next) => {
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    console.error('JSON Parse Error:', err);
+    return res.status(400).json({ error: 'Invalid JSON', message: err.message });
+  }
+  next();
+});
 
 // Initialize Gemini API
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);

@@ -65,6 +65,18 @@ export const metadata: Metadata = {
   }
 };
 
+// Suppress hydration warnings in development
+if (process.env.NODE_ENV === 'development') {
+  const originalError = console.error;
+  console.error = (...args) => {
+    if (args[0]?.includes?.('Warning: Text content did not match') ||
+        args[0]?.includes?.('Warning: Expected server HTML')) {
+      return;
+    }
+    originalError.apply(console, args);
+  };
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -73,6 +85,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <meta name="extension-modifiable" content="false" />
+        <meta name="browser-extension" content="no-modify" />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-LN4M0YTJFC"
           strategy="afterInteractive"

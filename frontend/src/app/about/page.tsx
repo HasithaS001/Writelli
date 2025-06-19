@@ -1,5 +1,3 @@
-"use client";
-
 import React from 'react';
 import Image from 'next/image';
 import Header from '@/components/landing/Header';
@@ -8,23 +6,23 @@ import Footer from '@/components/landing/Footer';
 export default function AboutPage() {
   const teamMembers = [
     {
-      name: 'Sarah Johnson',
+      name: 'Hasitha Sudheera',
       role: 'Founder & CEO',
-      image: '/images/team/sarah.jpg',
-      bio: 'With over 15 years in AI and NLP, Sarah leads Writelli\'s vision of making advanced writing tools accessible to everyone.',
+      image: '/images/Hasitha.png',
+      bio: 'Software Engineer,Hasitha leads Writelli\'s vision of making advanced writing tools accessible to everyone.',
       social: {
-        linkedin: '#',
-        twitter: '#'
+        linkedin: 'https://www.linkedin.com/in/hasitha-sudheera-bandara-b4b366346/',
+        twitter: 'https://x.com/Mr_Hasitha001'
       }
     },
     {
-      name: 'Michael Chen',
-      role: 'Chief Technology Officer',
-      image: '/images/team/michael.jpg',
-      bio: 'A pioneer in machine learning and language models, Michael architects the AI technology that powers Writelli\'s innovative features.',
+      name: 'Hasitha Sudheera',
+      role: 'Content Creator',
+      image: '/images/Hasitha.png',
+      bio: 'Content creator at Writelli.com, crafting compelling blogs that inform and inspire readers.',
       social: {
-        linkedin: '#',
-        twitter: '#'
+        linkedin: 'https://www.linkedin.com/in/hasitha-sudheera-bandara-b4b366346/',
+        twitter: 'https://x.com/Mr_Hasitha001'
       }
     }
   ];
@@ -97,7 +95,7 @@ export default function AboutPage() {
             <div className="md:w-1/2">
               <h2 className="text-3xl font-bold text-gray-900 mb-6">Who We Are</h2>
               <p className="text-lg text-gray-700 mb-4">
-                Founded in 2023, Writelli is a team of passionate writers, developers, and AI enthusiasts dedicated to revolutionizing the writing process through artificial intelligence.
+                Founded in 2024, Writelli is a team of passionate writers, developers, and AI enthusiasts dedicated to revolutionizing the writing process through artificial intelligence.
               </p>
               <p className="text-lg text-gray-700 mb-4">
                 We believe that AI should enhance human creativity, not replace it. Our tools are designed to help writers overcome blocks, refine their work, and explore new possibilities in their writing.

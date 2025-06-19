@@ -2,14 +2,26 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import ToolsDropdown from './ToolsDropdown';
 
-const Header = () => {
+export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
   const { user, signOut } = useAuth();
-  
+
+  useEffect(() => {
+    setIsMounted(true);
+    return () => setIsMounted(false);
+  }, []);
+
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [pathname]);
+
   const handleSignOut = async () => {
     await signOut();
     router.push('/');
@@ -28,6 +40,9 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
+            <div className="relative">
+              <ToolsDropdown />
+            </div>
             <Link href="/about" className="text-gray-700 hover:text-[#0072df] font-medium transition-colors">
               About Us
             </Link>
@@ -93,6 +108,9 @@ const Header = () => {
         <div className="md:hidden bg-white border-t border-gray-100 py-2">
           <div className="container mx-auto px-4">
             <nav className="flex flex-col space-y-3 py-3">
+              <div className="relative">
+                <ToolsDropdown isMobile onSelect={() => setIsMenuOpen(false)} />
+              </div>
               <Link 
                 href="/about" 
                 className="text-gray-700 hover:text-[#0072df] font-medium transition-colors py-2"
@@ -166,6 +184,6 @@ const Header = () => {
       )}
     </header>
   );
-};
+}
 
-export default Header;
+
